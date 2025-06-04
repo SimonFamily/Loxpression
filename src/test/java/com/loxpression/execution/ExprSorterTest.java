@@ -17,7 +17,7 @@ class ExprSorterTest {
 	@Test
 	void test1() {
 		List<String> srcs = new ArrayList<>();
-		srcs.add("x = a + b * c");
+		srcs.add("y = x = a + b * c");
 		srcs.add("a = m + n");
 		srcs.add("b = a * 2");
 		srcs.add("c = n + w + b");

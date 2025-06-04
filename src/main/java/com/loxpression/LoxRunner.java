@@ -27,11 +27,11 @@ public class LoxRunner {
 	}
 
 	public boolean isTrace() {
-		return context.getLogger().isTrace();
+		return context.getTracer().isEnable();
 	}
 
 	public void setTrace(boolean isTrace) {
-		context.getLogger().setTrace(isTrace);
+		context.getTracer().setEnable(isTrace);
 	}
 
 	public Object execute(String expression) {
@@ -49,31 +49,31 @@ public class LoxRunner {
 	}
 	
 	public void execute(List<String> expressions, Environment env) {
-		context.getLogger().startTrace("开始。公式总数：%s", expressions.size());
+		context.getTracer().startTimer("开始。公式总数：%s", expressions.size());
 		List<Expr> exprs = parseExpressions(expressions);
 		context.preExecute(exprs, expressions);
 		if (needSort) {
 			ExprSorter sorter = new ExprSorter(context);
 			exprs = sorter.sort();
 		}
-		context.getLogger().startTrace();
+		context.getTracer().startTimer();
 		for (Expr expression : exprs) {
 			Evaluator evtor = new Evaluator(env);
 			Value v =  evtor.execute(expression);
 		}
-		context.getLogger().endTrace("完成求值。");
-		context.getLogger().endTrace("结束。");
+		context.getTracer().endTimer("完成求值。");
+		context.getTracer().endTimer("结束。");
 	}
 	
 	public List<Expr> parseExpressions(List<String> expressions) {
-		context.getLogger().startTrace();
+		context.getTracer().startTimer();
 		List<Expr> exprs = new ArrayList<Expr>();
 		for (String expression : expressions) {
 			Parser p = new Parser(expression);
 			Expr expr = p.expression();
 			exprs.add(expr);
 		}
-		context.getLogger().endTrace("结束解析表达式。");
+		context.getTracer().endTimer("结束解析表达式。");
 		return exprs;
 	}
 }

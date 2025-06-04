@@ -13,17 +13,17 @@ import com.loxpression.visitors.VariableSet;
 import com.loxpression.visitors.VarsQuery;
 
 public class LoxContext {
-	private Logger logger;
+	private Tracer tracer;
 	private List<ExprInfo> exprInfos;
 	private NodeSet<ExprInfo> nodeSet;
 	private Digraph graph;
 
 	public LoxContext() {
-		logger = new Logger();
+		tracer = new Tracer();
 	}
 	
-	public Logger getLogger() {
-		return logger;
+	public Tracer getTracer() {
+		return tracer;
 	}
 	
 	public List<ExprInfo> getExprInfos() {
@@ -47,7 +47,7 @@ public class LoxContext {
 	}
 	
 	private void initExprInfos(List<Expr> exprs, List<String> srcs) {
-		getLogger().startTrace();
+		getTracer().startTimer();
 		this.exprInfos = new ArrayList<ExprInfo>(exprs.size());
 		
 		VarsQuery varQuery = new VarsQuery();
@@ -62,11 +62,11 @@ public class LoxContext {
 			}
 			this.exprInfos.add(exprInfo);
 		}
-		getLogger().endTrace("完成表达式变量信息初始化。");
+		getTracer().endTimer("完成表达式变量信息初始化。");
 	}
 	
 	private void initNodes() {
-		getLogger().startTrace();
+		getTracer().startTimer();
 		for (ExprInfo exprInfo : this.exprInfos) {
 			for (String name : exprInfo.precursors) {
 				nodeSet.addNode(name);
@@ -81,11 +81,11 @@ public class LoxContext {
 				}
 			}
 		}
-		getLogger().endTrace("完成图节点初始化。");
+		getTracer().endTimer("完成图节点初始化。");
 	}
 	
 	private void initGraph() {
-		getLogger().startTrace();
+		getTracer().startTimer();
 		this.graph = new Digraph(nodeSet.size());
 		for (ExprInfo info : exprInfos) {
 			for (String prec : info.precursors) {
@@ -98,7 +98,7 @@ public class LoxContext {
 				}
 			}
 		}
-		getLogger().endTrace("完成图的构造。");
+		getTracer().endTimer("完成图的构造。");
 	}
 	
 	public void printGraph(StringBuilder s) {

@@ -22,7 +22,7 @@ public class ExprSorter {
 	}
 	
 	public List<Expr> sort() {
-		context.getLogger().startTrace();
+		context.getTracer().startTimer();
 		TopologicalSort topSorter = new TopologicalSort(graph);
 		if (!topSorter.sort()) {
 			throw new LoxRuntimeError("公式列表存在循环引用！");
@@ -35,12 +35,12 @@ public class ExprSorter {
 				result.add(node.info.expr);
 			}
 		}
-		context.getLogger().endTrace("完成拓扑排序。");
+		context.getTracer().endTimer("完成拓扑排序。");
 		return result;
 	}
 	
 	public List<ExprInfo> sortX() {
-		context.getLogger().startTrace();
+		context.getTracer().startTimer();
 		TopologicalSort topSorter = new TopologicalSort(graph);
 		
 		if (!topSorter.sort()) {
@@ -54,7 +54,7 @@ public class ExprSorter {
 				result.add(node.info);
 			}
 		}
-		context.getLogger().endTrace("完成拓扑排序。");
+		context.getTracer().endTimer("完成拓扑排序。");
 		return result;
 	}
 	
