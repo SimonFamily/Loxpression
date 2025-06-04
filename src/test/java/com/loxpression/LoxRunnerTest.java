@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 public class LoxRunnerTest {
 	@Test
     void testSimple() {
-		String str = "x = y = b + c * d - 100 / 5 ** 2 ** 1";
 		Environment env = new Environment();  
 		LoxRunner runner = new LoxRunner();
 		assertEquals(0, runner.execute("1 + 2 - 3", env));

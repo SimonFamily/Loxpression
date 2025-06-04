@@ -9,6 +9,7 @@ import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.CallExpr;
 import com.loxpression.expr.Expr;
 import com.loxpression.expr.IdExpr;
+import com.loxpression.expr.IfExpr;
 import com.loxpression.expr.LiteralExpr;
 import com.loxpression.expr.LogicExpr;
 import com.loxpression.expr.UnaryExpr;
@@ -25,6 +26,12 @@ public class Evaluator extends VisitorBase<Value> {
 	
 	public Evaluator(Environment env) {
 		super(env);
+	}
+	
+	@Override
+	public Value execute(Expr expr) {
+		if (expr != null) return expr.accept(this);
+		return new Value();
 	}
 
 	@Override
@@ -96,7 +103,7 @@ public class Evaluator extends VisitorBase<Value> {
 		default:
 			break;
 		}
-		return null;
+		return new Value();
 	}
 	
 	public Value visit(LogicExpr expr) {
@@ -133,7 +140,7 @@ public class Evaluator extends VisitorBase<Value> {
 					return new Value(-right.asDouble());
 				}
 			default:
-				return null;
+				return new Value();
 		}
 	}
 
@@ -166,6 +173,17 @@ public class Evaluator extends VisitorBase<Value> {
 //		}
 		List<Value> values = execute(expr.arguments);
 		return func.call(values);
+	}
+	
+	@Override
+	public Value visit(IfExpr expr) {
+		Value condition = execute(expr.condition);
+		if (condition.isTruthy()) {
+			return execute(expr.thenBranch);
+		} else if (expr.elseBranch != null) {
+			return execute(expr.elseBranch);
+		}
+		return new Value();
 	}
 	
 	private void checkNumberOperand(Token operator, Value operand) {

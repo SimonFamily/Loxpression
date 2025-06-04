@@ -24,9 +24,7 @@ public abstract class VisitorBase<R> implements Visitor<R> {
 		return expr.accept(this);
 	}
 	
-	public R execute(Expr expr) {
-		return expr.accept(this);
-	}
+	public abstract R execute(Expr expr);
 
 	public List<R> execute(List<Expr> exprs) {
 		if (exprs == null || exprs.size() == 0) return new ArrayList<>();

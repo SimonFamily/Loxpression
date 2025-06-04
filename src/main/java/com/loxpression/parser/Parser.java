@@ -11,6 +11,7 @@ import com.loxpression.parser.parselet.impl.BinaryParselet;
 import com.loxpression.parser.parselet.impl.CallParselet;
 import com.loxpression.parser.parselet.impl.GroupParselet;
 import com.loxpression.parser.parselet.impl.IdParselet;
+import com.loxpression.parser.parselet.impl.IfParselet;
 import com.loxpression.parser.parselet.impl.LiteralParselet;
 import com.loxpression.parser.parselet.impl.LogicParselet;
 import com.loxpression.parser.parselet.impl.PreUnaryParselet;
@@ -25,6 +26,7 @@ public class Parser {
 		prefixParselets.put(LEFT_PAREN, new GroupParselet());
 		prefixParselets.put(MINUS, new PreUnaryParselet(Precedence.PREC_UNARY));
 		prefixParselets.put(BANG, new PreUnaryParselet(Precedence.PREC_UNARY));
+		prefixParselets.put(IF, new IfParselet());
 		
 		infixParselets.put(PLUS, new BinaryParselet(Precedence.PREC_TERM));
 		infixParselets.put(MINUS, new BinaryParselet(Precedence.PREC_TERM));
@@ -69,7 +71,7 @@ public class Parser {
 		Token token = advance();
 		PrefixParselet prefixParselet = prefixParselets.get(token.type);
 		if (prefixParselet == null) {
-			throw new RuntimeException("unkown token: " + token);
+			throw new LoxParseError(token, "unkown token: " + token);
 		}
 		Expr lhs = prefixParselet.parse(this, token);
 		while (peek().type != EOF) {

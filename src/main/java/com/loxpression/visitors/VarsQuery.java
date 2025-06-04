@@ -5,6 +5,7 @@ import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.CallExpr;
 import com.loxpression.expr.Expr;
 import com.loxpression.expr.IdExpr;
+import com.loxpression.expr.IfExpr;
 import com.loxpression.expr.LiteralExpr;
 import com.loxpression.expr.LogicExpr;
 import com.loxpression.expr.UnaryExpr;
@@ -13,6 +14,12 @@ public class VarsQuery extends VisitorBase<VariableSet> {
 	
 	public VarsQuery() {
 		super();
+	}
+	
+	@Override
+	public VariableSet execute(Expr expr) {
+		if (expr != null) return expr.accept(this);
+		return null;
 	}
 
 	@Override
@@ -63,6 +70,15 @@ public class VarsQuery extends VisitorBase<VariableSet> {
 			VariableSet cur = execute(arg);
 			result.comebine(cur);
 		}
+		return result;
+	}
+	
+	@Override
+	public VariableSet visit(IfExpr expr) {
+		VariableSet result = new VariableSet();
+		result.comebine(execute(expr.condition));
+		result.comebine(execute(expr.thenBranch));
+		result.comebine(execute(expr.elseBranch));
 		return result;
 	}
 
