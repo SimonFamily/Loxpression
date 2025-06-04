@@ -66,6 +66,10 @@ public class Tracer {
 			msg += String.format(message, args);
 		}
 		printTrace(msg);
+		
+		if (stack.isEmpty()) {
+			stack.push(new Entry(0, System.currentTimeMillis()));
+		}
 	}
 	
 	private Entry newTimeEntry() {
