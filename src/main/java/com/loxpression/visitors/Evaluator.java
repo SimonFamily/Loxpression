@@ -8,10 +8,12 @@ import com.loxpression.expr.AssignExpr;
 import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.CallExpr;
 import com.loxpression.expr.Expr;
+import com.loxpression.expr.GetExpr;
 import com.loxpression.expr.IdExpr;
 import com.loxpression.expr.IfExpr;
 import com.loxpression.expr.LiteralExpr;
 import com.loxpression.expr.LogicExpr;
+import com.loxpression.expr.SetExpr;
 import com.loxpression.expr.UnaryExpr;
 import com.loxpression.functions.Function;
 import com.loxpression.functions.FunctionManager;
@@ -146,7 +148,7 @@ public class Evaluator extends VisitorBase<Value> {
 
 	@Override
 	public Value visit(IdExpr expr) {
-		return env.getOrDefault(expr.id, new Value());
+		return getVariableValue(expr.id);
 	}
 	
 	@Override
@@ -186,6 +188,27 @@ public class Evaluator extends VisitorBase<Value> {
 		return new Value();
 	}
 	
+	@Override
+	public Value visit(GetExpr expr) {
+		Value object = execute(expr.object);
+		if (object.isInstance()) {
+			return object.asInstance().get(expr.name.lexeme);
+		}
+		throw new LoxRuntimeError(expr.name, "Only instances have properties.");
+	}
+	
+	@Override
+	public Value visit(SetExpr expr) {
+		Value object = execute(expr.object);
+		if (!(object.isInstance())) {
+			throw new LoxRuntimeError(expr.name, "Only instances have fields.");
+		}
+
+		Value value = execute(expr.value);
+		object.asInstance().set(expr.name.lexeme, value);
+		return value;
+	}
+	
 	private void checkNumberOperand(Token operator, Value operand) {
 		if (operand != null && operand.isNumber()) {
 			return;
@@ -198,5 +221,9 @@ public class Evaluator extends VisitorBase<Value> {
 			return;
 		}
 		throw new LoxRuntimeError(operator, String.format("Operands must be numbers.left:%s. right: %s" , left, right));
+	}
+	
+	private Value getVariableValue(String id) {
+		return env.getOrDefault(id, new Value());
 	}
 }

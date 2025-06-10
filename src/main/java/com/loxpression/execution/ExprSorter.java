@@ -17,8 +17,8 @@ public class ExprSorter {
 	
 	public ExprSorter(LoxContext context) {
 		this.context = context;
-		this.nodeSet = context.getNodeSet();
-		this.graph = context.getGraph();
+		this.nodeSet = context.getExecContext().getNodeSet();
+		this.graph = context.getExecContext().getGraph();
 	}
 	
 	public List<Expr> sort() {

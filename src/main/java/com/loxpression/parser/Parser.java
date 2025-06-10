@@ -9,6 +9,7 @@ import com.loxpression.parser.parselet.PrefixParselet;
 import com.loxpression.parser.parselet.impl.AssignParselet;
 import com.loxpression.parser.parselet.impl.BinaryParselet;
 import com.loxpression.parser.parselet.impl.CallParselet;
+import com.loxpression.parser.parselet.impl.GetParselet;
 import com.loxpression.parser.parselet.impl.GroupParselet;
 import com.loxpression.parser.parselet.impl.IdParselet;
 import com.loxpression.parser.parselet.impl.IfParselet;
@@ -44,6 +45,7 @@ public class Parser {
 		infixParselets.put(GREATER, new BinaryParselet(Precedence.PREC_COMPARISON));
 		infixParselets.put(GREATER_EQUAL, new BinaryParselet(Precedence.PREC_COMPARISON));
 		infixParselets.put(LEFT_PAREN, new CallParselet(Precedence.PREC_CALL));
+		infixParselets.put(DOT, new GetParselet(Precedence.PREC_CALL));
 	}
 	
 	private List<Token> tokens;

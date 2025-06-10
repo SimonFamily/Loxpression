@@ -24,4 +24,12 @@ public class VarQueryTest {
 		System.out.println(result);
 		assertEquals("p,q,x,y,z = a,b,c,d,u,v,w,m,n", result.toString());
 	}
+	
+	@Test
+	void objTest() {
+		VarsQuery varQuery = new VarsQuery();
+		VariableSet result = varQuery.execute("A.x = A.y = B.a + B.b*(2 + (A.z = C.D.h * C.D.i)) - abs(sum(B.c, B.d - C.D.e/C.D.f**C.D.g))");
+		System.out.println(result);
+		assertEquals("A.x,A.y,A.z = C.D.i,C.D.g,B.a,C.D.h,B.b,C.D.e,B.c,C.D.f,B.d", result.toString());
+	}
 }

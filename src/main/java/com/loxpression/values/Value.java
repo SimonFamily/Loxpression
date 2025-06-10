@@ -1,5 +1,7 @@
 package com.loxpression.values;
 
+import com.loxpression.Instance;
+
 public class Value {
 	private Object v;
 	private ValueType vt;
@@ -29,6 +31,11 @@ public class Value {
 	public Value(String v) {
 		this.v = v;
 		this.vt = ValueType.String;
+	}
+	
+	public Value(Instance v) {
+		this.v = v;
+		this.vt = ValueType.Instance;
 	}
 	
 	public Value(boolean v) {
@@ -71,6 +78,10 @@ public class Value {
 		return true;
 	}
 	
+	public boolean isInstance() {
+		return vt == ValueType.Instance;
+	}
+	
 	public boolean asBoolean() {
 		return (boolean)v;
 	}
@@ -85,6 +96,10 @@ public class Value {
 	
 	public String asString() {
 		return (String)v;
+	}
+	
+	public Instance asInstance() {
+		return (Instance)v;
 	}
 	
 	@Override

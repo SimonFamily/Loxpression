@@ -51,7 +51,7 @@ public class LoxRunner {
 	public void execute(List<String> expressions, Environment env) {
 		context.getTracer().startTimer("开始。公式总数：%s", expressions.size());
 		List<Expr> exprs = parseExpressions(expressions);
-		context.preExecute(exprs, expressions);
+		context.prepareExecute(exprs, expressions);
 		if (needSort) {
 			ExprSorter sorter = new ExprSorter(context);
 			exprs = sorter.sort();

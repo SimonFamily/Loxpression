@@ -29,7 +29,7 @@ class ExprSorterTest {
 		}
 		
 		LoxContext context = new LoxContext();
-		context.preExecute(exprs, srcs);
+		context.prepareExecute(exprs, srcs);
 		ExprSorter sorter = new ExprSorter(context);
 		List<ExprInfo> exprInfos = sorter.sortX();
 		List<String> result = new ArrayList<String>(exprInfos.size());
@@ -68,7 +68,7 @@ class ExprSorterTest {
 		}
 		
 		LoxContext context = new LoxContext();
-		context.preExecute(exprs, srcs);
+		context.prepareExecute(exprs, srcs);
 		ExprSorter sorter = new ExprSorter(context);
 		List<ExprInfo> exprInfos = sorter.sortX();
 		List<String> result = new ArrayList<String>(exprInfos.size());
