@@ -49,7 +49,6 @@ class ExprSorterTest {
 		assertEquals("x = y = a + b * c", exprInfos.get(3).getSrc());
 		
 		runner = new LoxRunner();
-		runner.setTrace(true);
 		Environment env = new DefaultEnvironment();
 		env.put("m", 2);
 		env.put("n", 4);
@@ -100,7 +99,6 @@ class ExprSorterTest {
 		assertEquals("a * b + c", exprInfos.get(5).getSrc());
 		
 		runner = new LoxRunner();
-		runner.setTrace(true);
 		Environment env = new DefaultEnvironment();
 		env.put("m", 2);
 		env.put("n", 4);

@@ -32,7 +32,6 @@ public class LoxRunnerTest {
 	
 	@Test
     void testEvaluate() {
-		System.out.println("求值测试：");
 		Environment env = new DefaultEnvironment();  
 		env.put("a", 1);
 		env.put("b", 2);
@@ -40,11 +39,9 @@ public class LoxRunnerTest {
 		LoxRunner runner = new LoxRunner();
 		Object r = runner.execute("a + b * c - 100 / 5 ** 2 ** 1", env);
 		assertEquals(3.0, r);
-		System.out.println(r);
 		
 		r = runner.execute("a + b * c >= 6", env);
-		System.out.println(r);
-		System.out.println("==========：");
+		assertEquals(true, r);
     }
 	
 	@Test
@@ -77,7 +74,6 @@ public class LoxRunnerTest {
 
 	@Test
 	void testCalculation() {
-		System.out.println("运算测试：");
 		List<String> srcs = new ArrayList<>();
 		srcs.add("x = a + b * c");
 		srcs.add("a = m + n");
@@ -99,11 +95,5 @@ public class LoxRunnerTest {
 		assertEquals(6, results[1]);
 		assertEquals(12, results[2]);
 		assertEquals(10, results[3]);
-		
-		System.out.println(env.get("x"));
-		System.out.println(env.get("a"));
-		System.out.println(env.get("b"));
-		System.out.println(env.get("c"));
-		System.out.println("==========");
 	}
 }

@@ -13,7 +13,6 @@ public class VarQueryTest {
 	void test() {
 		VarsQuery varQuery = new VarsQuery();
 		VariableSet result = varQuery.execute("x = y = a + b*(2 + (z = h * i)) - abs(sum(c, d - e/f**g))");
-		System.out.println(result);
 		assertEquals("x,y,z = a,b,c,d,e,f,g,h,i", result.toString());
 	}
 	
@@ -21,7 +20,6 @@ public class VarQueryTest {
 	void ifElseTest() {
 		VarsQuery varQuery = new VarsQuery();
 		VariableSet result = varQuery.execute("if(a == b + c, if (a > d, x = y = m + n, p = q = u + v), z = w * 2)");
-		System.out.println(result);
 		assertEquals("p,q,x,y,z = a,b,c,d,u,v,w,m,n", result.toString());
 	}
 	
@@ -29,7 +27,6 @@ public class VarQueryTest {
 	void objTest() {
 		VarsQuery varQuery = new VarsQuery();
 		VariableSet result = varQuery.execute("A.x = A.y = B.a + B.b*(2 + (A.z = C.D.h * C.D.i)) - abs(sum(B.c, B.d - C.D.e/C.D.f**C.D.g))");
-		System.out.println(result);
 		assertEquals("A.x,A.y,A.z = C.D.i,C.D.g,B.a,C.D.h,B.b,C.D.e,B.c,C.D.f,B.d", result.toString());
 	}
 }
