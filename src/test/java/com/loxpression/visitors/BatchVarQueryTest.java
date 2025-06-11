@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 public class BatchVarQueryTest {
 	@Test
 	void batchTest() {
+		System.out.println("批量查询变量测试：");
 		int cnt = 10000;
+		System.out.println("公式总数：" + cnt);
 		List<String> lines = new ArrayList<String>();
 		String fml = "A! = 1 + 2 * 3 - 6 - 1 + B! + C! * (D! - E! + 10 ** 2 / 5 - (12 + 8)) - F! * G! +  100 / 5 ** 2 ** 1";
 		
@@ -24,5 +26,6 @@ public class BatchVarQueryTest {
 		}
 		System.out.println(result);
 		System.out.println("time: " + (System.currentTimeMillis() - start));
+		System.out.println("==========");
 	}
 }

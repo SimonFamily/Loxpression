@@ -3,6 +3,7 @@ package com.loxpression;
 import java.util.List;
 
 import com.loxpression.execution.ExecuteContext;
+import com.loxpression.execution.ExprInfo;
 import com.loxpression.expr.Expr;
 
 public class LoxContext {
@@ -22,7 +23,7 @@ public class LoxContext {
 		return this.execContext;
 	}
 	
-	public void prepareExecute(List<Expr> exprs, List<String> srcs) {
-		this.execContext.preExecute(exprs, srcs);
+	public void prepareExecute(List<ExprInfo> exprInfos) {
+		this.execContext.preExecute(exprInfos);
 	}
 }

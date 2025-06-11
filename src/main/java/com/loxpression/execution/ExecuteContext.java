@@ -1,21 +1,16 @@
 package com.loxpression.execution;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.loxpression.LoxContext;
-import com.loxpression.expr.Expr;
 import com.loxpression.util.Digraph;
 import com.loxpression.util.Node;
 import com.loxpression.util.NodeSet;
-import com.loxpression.visitors.VariableSet;
-import com.loxpression.visitors.VarsQuery;
 
 public class ExecuteContext {
 	private List<ExprInfo> exprInfos;
-	private NodeSet<ExprInfo> nodeSet;
-	private Digraph graph;
+	private NodeSet<ExprInfo> nodeSet; // 有向图的变量节点
+	private Digraph graph; // 所有公式内变量构成的有向图
 	private LoxContext global;
 	
 	public ExecuteContext(LoxContext global) {
@@ -34,42 +29,29 @@ public class ExecuteContext {
 		return this.graph;
 	}
 	
-	public void preExecute(List<Expr> exprs, List<String> srcs) {
-		this.nodeSet = new NodeSet<>();
-		exprs = exprs == null ? new ArrayList<Expr>() : exprs;
-		this.initExprInfos(exprs, srcs);
-		this.initNodes();
-		this.initGraph();
+	public boolean hasAssign() {
+		return this.graph.V() > 0;
 	}
 	
-	private void initExprInfos(List<Expr> exprs, List<String> srcs) {
-		global.getTracer().startTimer();
-		this.exprInfos = new ArrayList<ExprInfo>(exprs.size());
-		
-		VarsQuery varQuery = new VarsQuery();
-		for (int i = 0; i < exprs.size(); i++) {
-			Expr expr = exprs.get(i);
-			VariableSet varSet = varQuery.execute(expr);
-			Set<String> precursors = varSet.getDepends();
-			Set<String> successors = varSet.getAssigns();
-			ExprInfo exprInfo = new ExprInfo(expr, precursors, successors);
-			if (srcs != null && srcs.size() > 0) {
-				exprInfo.src = srcs.get(i);
-			}
-			this.exprInfos.add(exprInfo);
-		}
-		global.getTracer().endTimer("完成表达式变量信息初始化。");
+	public void preExecute(List<ExprInfo> exprInfos) {
+		this.nodeSet = new NodeSet<>();
+		this.exprInfos = exprInfos;
+		this.initNodes();
+		this.initGraph();
 	}
 	
 	private void initNodes() {
 		global.getTracer().startTimer();
 		for (ExprInfo exprInfo : this.exprInfos) {
-			for (String name : exprInfo.precursors) {
+			if (!exprInfo.isAssign()) { //只对赋值表达式构造有向图
+				continue;
+			}
+			for (String name : exprInfo.getPrecursors()) {
 				nodeSet.addNode(name);
 			}
 			
 			boolean flag = true;
-			for (String name : exprInfo.successors) {
+			for (String name : exprInfo.getSuccessors()) {
 				Node<ExprInfo> node = nodeSet.addNode(name);
 				if (flag) {
 					node.info = exprInfo;
@@ -83,11 +65,14 @@ public class ExecuteContext {
 	private void initGraph() {
 		global.getTracer().startTimer();
 		this.graph = new Digraph(nodeSet.size());
+		if (nodeSet.size() == 0) {
+			return;
+		}
 		for (ExprInfo info : exprInfos) {
-			for (String prec : info.precursors) {
+			for (String prec : info.getPrecursors()) {
 				Node<ExprInfo> preNode = nodeSet.getNode(prec);
 				int u = preNode.index;
-				for (String succ : info.successors) {
+				for (String succ : info.getSuccessors()) {
 					Node<ExprInfo> succNode = nodeSet.getNode(succ);
 					int v = succNode.index;
 					this.graph.addEdge(u, v);

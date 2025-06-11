@@ -3,16 +3,12 @@ package com.loxpression.visitors;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.loxpression.Environment;
+import com.loxpression.env.Environment;
 import com.loxpression.expr.Expr;
 import com.loxpression.parser.Parser;
 
 public abstract class VisitorBase<R> implements Visitor<R> {
 	protected Environment env;
-	
-	public VisitorBase() {
-		this.env = new Environment();
-	}
 	
 	public VisitorBase(Environment env) {
 		this.env = env;

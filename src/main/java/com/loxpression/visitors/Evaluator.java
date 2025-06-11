@@ -2,8 +2,8 @@ package com.loxpression.visitors;
 
 import java.util.List;
 
-import com.loxpression.Environment;
 import com.loxpression.LoxRuntimeError;
+import com.loxpression.env.Environment;
 import com.loxpression.expr.AssignExpr;
 import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.CallExpr;
@@ -22,9 +22,6 @@ import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
 
 public class Evaluator extends VisitorBase<Value> {
-	public Evaluator() {
-		super();
-	}
 	
 	public Evaluator(Environment env) {
 		super(env);

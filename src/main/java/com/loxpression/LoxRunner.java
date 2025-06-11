@@ -1,8 +1,12 @@
 package com.loxpression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.loxpression.env.DefaultEnvironment;
+import com.loxpression.env.Environment;
+import com.loxpression.execution.ExprInfo;
 import com.loxpression.execution.ExprSorter;
 import com.loxpression.expr.Expr;
 import com.loxpression.parser.Parser;
@@ -35,45 +39,61 @@ public class LoxRunner {
 	}
 
 	public Object execute(String expression) {
-		return execute(expression, new Environment());
-	} 
+		Object[] result = execute(Arrays.asList(expression), new DefaultEnvironment());
+		return result[0];
+	}
 	
 	public Object execute(String expression, Environment env) {
-		Evaluator evtor = new Evaluator(env);
-		Value v =  evtor.execute(expression);
-		return v.getValue();
+		Object[] result = execute(Arrays.asList(expression), env);
+		return result[0];
 	}
 	
-	public void execute(List<String> exprs) {
-		execute(exprs, new Environment());
+	public Object[] execute(List<String> exprs) {
+		return execute(exprs, new DefaultEnvironment());
 	}
 	
-	public void execute(List<String> expressions, Environment env) {
+	public Object[] execute(List<String> expressions, Environment env) {
 		context.getTracer().startTimer("开始。公式总数：%s", expressions.size());
-		List<Expr> exprs = parseExpressions(expressions);
-		context.prepareExecute(exprs, expressions);
-		if (needSort) {
-			ExprSorter sorter = new ExprSorter(context);
-			exprs = sorter.sort();
-		}
+		List<ExprInfo> exprInfos = parseExpressions(expressions);
+		context.prepareExecute(exprInfos);
+		
+		exprInfos = sortExprs(exprInfos);
 		context.getTracer().startTimer();
-		for (Expr expression : exprs) {
+		env.beforeExecute(context.getExecContext());
+		context.getTracer().endTimer("完成执行环境初始化。");
+		
+		context.getTracer().startTimer();
+		Object[] result = new Object[expressions.size()];
+		for (ExprInfo exprInfo : exprInfos) {
 			Evaluator evtor = new Evaluator(env);
-			Value v =  evtor.execute(expression);
+			Value v =  evtor.execute(exprInfo.getExpr());
+			Object r = v.getValue();
+			result[exprInfo.getIndex()] = r;
 		}
 		context.getTracer().endTimer("完成求值。");
 		context.getTracer().endTimer("结束。");
+		return result;
 	}
 	
-	public List<Expr> parseExpressions(List<String> expressions) {
+	private List<ExprInfo> sortExprs(List<ExprInfo> exprInfos) {
+		if (needSort && exprInfos.size() >= 1 && context.getExecContext().hasAssign()) {
+			ExprSorter sorter = new ExprSorter(context);
+			exprInfos = sorter.sort();
+		}
+		return exprInfos;
+	}
+	
+	public List<ExprInfo> parseExpressions(List<String> expressions) {
 		context.getTracer().startTimer();
-		List<Expr> exprs = new ArrayList<Expr>();
-		for (String expression : expressions) {
-			Parser p = new Parser(expression);
+		List<ExprInfo> result = new ArrayList<ExprInfo>(expressions.size());
+		for (int i = 0; i < expressions.size(); i++) {
+			String src = expressions.get(i);
+			Parser p = new Parser(src);
 			Expr expr = p.expression();
-			exprs.add(expr);
+			ExprInfo info = new ExprInfo(expr, src, i);
+			result.add(info);
 		}
 		context.getTracer().endTimer("结束解析表达式。");
-		return exprs;
+		return result;
 	}
 }

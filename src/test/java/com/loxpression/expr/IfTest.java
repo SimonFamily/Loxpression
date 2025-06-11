@@ -5,14 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.loxpression.Environment;
 import com.loxpression.LoxRunner;
+import com.loxpression.env.DefaultEnvironment;
+import com.loxpression.env.Environment;
 import com.loxpression.parser.LoxParseError;
 
 public class IfTest {
 	@Test
 	void testSimple() {
-		Environment env = new Environment();  
+		Environment env = new DefaultEnvironment();  
 		env.put("a", 1);
 		env.put("b", 2);
 		env.put("c", 3);
@@ -25,7 +26,7 @@ public class IfTest {
 	
 	@Test
 	void testTest() {
-		Environment env = new Environment();
+		Environment env = new DefaultEnvironment();
 		LoxRunner runner = new LoxRunner();
 		String str1 = "if(score >= 85, \"A\", if(score >= 70, \"B\", if(score >= 60, \"C\", \"D\")))";
 		String str2 = "if(score >= 70, if(score < 85, \"B\",\"A\"), if(score >= 60, \"C\", \"D\"))";
@@ -42,7 +43,7 @@ public class IfTest {
 	
 	@Test
 	void testError() {
-		Environment env = new Environment();
+		Environment env = new DefaultEnvironment();
 		env.put("a", 1);
 		env.put("b", 2);
 		env.put("c", 3);

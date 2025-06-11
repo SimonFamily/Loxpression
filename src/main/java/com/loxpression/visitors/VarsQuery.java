@@ -19,7 +19,7 @@ import com.loxpression.values.Value;
 public class VarsQuery extends VisitorBase<VariableSet> {
 	
 	public VarsQuery() {
-		super();
+		super(null);
 	}
 	
 	@Override

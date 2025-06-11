@@ -21,25 +21,9 @@ public class ExprSorter {
 		this.graph = context.getExecContext().getGraph();
 	}
 	
-	public List<Expr> sort() {
-		context.getTracer().startTimer();
-		TopologicalSort topSorter = new TopologicalSort(graph);
-		if (!topSorter.sort()) {
-			throw new LoxRuntimeError("公式列表存在循环引用！");
-		}
-		int[] nodeOrders = topSorter.getOrders();
-		List<Expr> result = new ArrayList<Expr>();
-		for (int nodeIndex : nodeOrders) {
-			Node<ExprInfo> node = nodeSet.getNode(nodeIndex);
-			if (node.info != null) {
-				result.add(node.info.expr);
-			}
-		}
-		context.getTracer().endTimer("完成拓扑排序。");
-		return result;
-	}
-	
-	public List<ExprInfo> sortX() {
+	public List<ExprInfo> sort() {
+		if (graph == null || graph.V() == 0) return null;
+		
 		context.getTracer().startTimer();
 		TopologicalSort topSorter = new TopologicalSort(graph);
 		
@@ -52,6 +36,13 @@ public class ExprSorter {
 			Node<ExprInfo> node = nodeSet.getNode(nodeIndex);
 			if (node.info != null) {
 				result.add(node.info);
+			}
+		}
+		
+		List<ExprInfo> origInfos = context.getExecContext().getExprInfos();
+		for (ExprInfo expr : origInfos) {
+			if (!expr.isAssign()) {
+				result.add(expr);
 			}
 		}
 		context.getTracer().endTimer("完成拓扑排序。");

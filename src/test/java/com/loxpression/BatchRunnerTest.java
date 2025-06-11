@@ -9,12 +9,15 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.loxpression.env.DefaultEnvironment;
+import com.loxpression.env.Environment;
 import com.loxpression.values.Value;
 
 class BatchRunnerTest {
 
 	@Test
 	void test() {
+		System.out.println("批量运算测试");
 		int cnt = 10000;
 		List<String> lines = new ArrayList<String>();
 		String fml = "A! = 1 + 2 * 3 - 6 - 1 + B! + C! * (D! - E! + 10 ** 2 / 5 - (12 + 8)) - F! * G! +  100 / 5 ** 2 ** 1";
@@ -31,7 +34,7 @@ class BatchRunnerTest {
 			lines.add(fml4.replaceAll("!", String.valueOf(i)));
 		}
 		
-		Environment env = new Environment();
+		Environment env = new DefaultEnvironment();
 		for (int i = 1; i <= lines.size(); i++) {
 			env.put("E" + i, 2);
 			env.put("F" + i, 3);
@@ -42,7 +45,6 @@ class BatchRunnerTest {
 		LoxRunner runner = new LoxRunner();
 		runner.setTrace(true);
 		runner.execute(lines, env);
-		System.out.println("变量总数: " + env.size());
 		
 		assertEquals(1686.0, env.get("A1").getValue());
 		assertEquals(116, env.get("B1").getValue());
@@ -59,6 +61,7 @@ class BatchRunnerTest {
 		assertEquals(59, env.get("C10000").getValue());
 		assertEquals(29, env.get("D10000").getValue());
 		assertEquals(9, env.get("G10000").getValue());
+		System.out.println("==========");
 	}
 
 }
