@@ -48,7 +48,8 @@ LoxRunner runner = new LoxRunner();
 Object r = runner.execute("a + b * c ", env);
 System.out.println(r); // 7
 ```
-系统提供的默认环境对象为DefaultEnvironment，在执行表达式前，对于表达式需要读取值的变量，都需要在DefaultEnvironment对象中有值。有时候需要执行的表达式数量较多，在对表达式做解析之前，业务层无法高效的把所有变量值都提前准备好，这时候便可以根据实际需要自定义环境对象，只需继承Environment抽象类即可。
+系统提供的默认环境对象为DefaultEnvironment，在执行表达式前，对于表达式中需要读取值的变量，都需要在DefaultEnvironment对象中有值。有时候需要执行的表达式数量较多，在对表达式做解析之前，业务层无法高效的把所有变量值都提前准备好，或者表达式中的变量和实际数据之间是间接的关联，这时候便可以根据需要自定义环境对象，只需继承Environment抽象类即可。参照示例:[FormEnvironment.java](https://github.com/SimonFamily/Loxpression/blob/master/src/test/java/com/loxpression/env/form/FormEnvironment.java)，以及单元测试:[FormEnvTest.java](https://github.com/SimonFamily/Loxpression/blob/master/src/test/java/com/loxpression/env/form/FormEnvTest.java)
 # 三、实现方式
+[todo]
 
 
