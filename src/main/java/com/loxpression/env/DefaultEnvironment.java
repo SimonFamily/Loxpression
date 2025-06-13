@@ -10,8 +10,8 @@ public class DefaultEnvironment extends Environment {
 	private Map<String, Value> map = new HashMap<>();
 	
 	@Override
-	public void beforeExecute(ExecuteContext context) {
-		//
+	public boolean beforeExecute(ExecuteContext context) {
+		return true;
 	}
 	
 	@Override

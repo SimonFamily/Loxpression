@@ -6,7 +6,7 @@ import com.loxpression.values.Value;
 
 public abstract class Environment {
 	
-	public abstract void beforeExecute(ExecuteContext context);
+	public abstract boolean beforeExecute(ExecuteContext context);
 	public abstract Value get(String id);
 	public abstract Value getOrDefault(String id, Value defValue);
 	public abstract void put(String id, Value value);

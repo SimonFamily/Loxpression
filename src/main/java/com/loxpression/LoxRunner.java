@@ -56,14 +56,15 @@ public class LoxRunner {
 		context.getTracer().startTimer("开始。公式总数：%s", expressions.size());
 		List<ExprInfo> exprInfos = parseExpressions(expressions);
 		context.prepareExecute(exprInfos);
-		
 		exprInfos = sortExprs(exprInfos);
+		
+		Object[] result = new Object[expressions.size()];
 		context.getTracer().startTimer();
-		env.beforeExecute(context.getExecContext());
+		boolean flag = env.beforeExecute(context.getExecContext());
 		context.getTracer().endTimer("完成执行环境初始化。");
+		if (!flag) return result;
 		
 		context.getTracer().startTimer();
-		Object[] result = new Object[expressions.size()];
 		for (ExprInfo exprInfo : exprInfos) {
 			Evaluator evtor = new Evaluator(env);
 			Value v =  evtor.execute(exprInfo.getExpr());

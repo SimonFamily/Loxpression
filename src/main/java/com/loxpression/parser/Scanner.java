@@ -222,10 +222,15 @@ public class Scanner {
 	}
 
 	private boolean isAlpha(char c) {
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || isChineseCharacter(c);
 	}
 
 	private boolean isAlphaNumeric(char c) {
 		return isDigit(c) || isAlpha(c);
+	}
+	
+	private boolean isChineseCharacter(char c) {
+	    // 检查基本汉字和扩展A区
+	    return (c >= '\u4E00' && c <= '\u9FFF') || (c >= '\u3400' && c <= '\u4DBF');
 	}
 }

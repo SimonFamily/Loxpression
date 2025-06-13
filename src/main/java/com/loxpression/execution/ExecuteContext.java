@@ -69,6 +69,9 @@ public class ExecuteContext {
 			return;
 		}
 		for (ExprInfo info : exprInfos) {
+			if (!info.isAssign()) { //只对赋值表达式构造有向图
+				continue;
+			}
 			for (String prec : info.getPrecursors()) {
 				Node<ExprInfo> preNode = nodeSet.getNode(prec);
 				int u = preNode.index;

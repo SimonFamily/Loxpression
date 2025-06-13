@@ -10,8 +10,8 @@ import com.loxpression.visitors.VariableSet;
 import com.loxpression.visitors.VarsQuery;
 
 public class ExprInfo {
-	private Set<String> precursors = new HashSet<String>(); // 依赖的变量
-	private Set<String> successors = new HashSet<String>(); // 被赋值的变量
+	private Set<String> precursors = new HashSet<String>(); // 依赖的变量 read
+	private Set<String> successors = new HashSet<String>(); // 被赋值的变量 write
 	private Expr expr;
 	private String src;
 	private int index;
