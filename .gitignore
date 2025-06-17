@@ -6,6 +6,7 @@ build/
 target/
 .gradle/
 .settings/
+.temp/
 out
 .DS_Store
 

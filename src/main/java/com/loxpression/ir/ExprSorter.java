@@ -1,10 +1,9 @@
-package com.loxpression.execution;
+package com.loxpression.ir;
 
 import java.util.*;
 
 import com.loxpression.LoxContext;
 import com.loxpression.LoxRuntimeError;
-import com.loxpression.expr.Expr;
 import com.loxpression.util.Digraph;
 import com.loxpression.util.Node;
 import com.loxpression.util.NodeSet;

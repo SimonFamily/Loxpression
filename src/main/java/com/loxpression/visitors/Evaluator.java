@@ -20,11 +20,12 @@ import com.loxpression.functions.FunctionManager;
 import com.loxpression.parser.Token;
 import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
+import com.loxpression.values.ValuesHelper;
 
 public class Evaluator extends VisitorBase<Value> {
-	
+	private Environment env;
 	public Evaluator(Environment env) {
-		super(env);
+		this.env = env;
 	}
 	
 	@Override
@@ -37,72 +38,8 @@ public class Evaluator extends VisitorBase<Value> {
 	public Value visit(BinaryExpr expr) {
 		Value left = execute(expr.left);
 		Value right = execute(expr.right);
-
-		switch (expr.operator.type) {
-		case PLUS:
-			if (!left.isNumber() && !left.isString() || !right.isNumber() && !right.isString()) {
-				throw new LoxRuntimeError(expr.operator, "Operands must be number or string.");
-			}
-			if (left.isString() || right.isString()) {
-				return new Value(left.toString() + right.toString());
-			} else {
-				if (left.isDouble() || right.isDouble()) {
-					return new Value(left.asDouble() + right.asDouble());
-				} else {
-					return new Value(left.asInteger() + right.asInteger());
-				}
-			}
-		case MINUS:
-			checkNumberOperands(expr.operator, left, right);
-			if (left.isDouble() || right.isDouble()) {
-				return new Value(left.asDouble() - right.asDouble());
-			} else {
-				return new Value(left.asInteger() - right.asInteger());
-			}
-		case STAR:
-			checkNumberOperands(expr.operator, left, right);
-			if (left.isDouble() || right.isDouble()) {
-				return new Value(left.asDouble() * right.asDouble());
-			} else {
-				return new Value(left.asInteger() * right.asInteger());
-			}
-		case SLASH:
-			checkNumberOperands(expr.operator, left, right);
-			if (left.isDouble() || right.isDouble()) {
-				return new Value(left.asDouble() / right.asDouble());
-			} else {
-				return new Value(left.asInteger() / right.asInteger());
-			}
-		case PERCENT:
-			checkNumberOperands(expr.operator, left, right);
-			if (left.isDouble() || right.isDouble()) {
-				return new Value(left.asDouble() % right.asDouble());
-			} else {
-				return new Value(left.asInteger() % right.asInteger());
-			}
-		case STARSTAR:
-			checkNumberOperands(expr.operator, left, right);
-			return new Value(Math.pow(left.asDouble(), right.asDouble()));
-		case GREATER:
-			checkNumberOperands(expr.operator, left, right);
-			return new Value(left.asDouble() > right.asDouble());
-		case GREATER_EQUAL:
-			checkNumberOperands(expr.operator, left, right);
-			return new Value(left.asDouble() >= right.asDouble());
-		case LESS:
-			checkNumberOperands(expr.operator, left, right);
-			return new Value(left.asDouble() < right.asDouble());
-		case LESS_EQUAL:
-			checkNumberOperands(expr.operator, left, right);
-			return new Value(left.asDouble() <= right.asDouble());
-		case BANG_EQUAL:
-			return new Value(!left.equals(right));
-		case EQUAL_EQUAL:
-			return new Value(left.equals(right));
-		default:
-			break;
-		}
-		return new Value();
+		Token operator = expr.operator;
+		return ValuesHelper.binaryOperate(left, right, operator.type);
 	}
 	
 	public Value visit(LogicExpr expr) {
@@ -127,20 +64,8 @@ public class Evaluator extends VisitorBase<Value> {
 	@Override
 	public Value visit(UnaryExpr expr) {
 		Value right = execute(expr.right);
-		switch (expr.operator.type) {
-			case BANG:
-				boolean truthy = right != null && right.isTruthy();
-				return new Value(!truthy);
-			case MINUS:
-				checkNumberOperand(expr.operator, right);
-				if (right.isInteger()) {
-					return new Value(-right.asInteger());
-				} else {
-					return new Value(-right.asDouble());
-				}
-			default:
-				return new Value();
-		}
+		Token operator = expr.operator;
+		return ValuesHelper.preUnaryOperate(right, operator.type);
 	}
 
 	@Override
@@ -204,20 +129,6 @@ public class Evaluator extends VisitorBase<Value> {
 		Value value = execute(expr.value);
 		object.asInstance().set(expr.name.lexeme, value);
 		return value;
-	}
-	
-	private void checkNumberOperand(Token operator, Value operand) {
-		if (operand != null && operand.isNumber()) {
-			return;
-		}
-		throw new LoxRuntimeError(operator, "Operand must be a number.");
-	}
-	
-	private void checkNumberOperands(Token operator, Value left, Value right) {
-		if (left.isNumber() && right.isNumber()) {
-			return;
-		}
-		throw new LoxRuntimeError(operator, String.format("Operands must be numbers.left:%s. right: %s" , left, right));
 	}
 	
 	private Value getVariableValue(String id) {

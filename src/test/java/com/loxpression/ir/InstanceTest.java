@@ -1,4 +1,4 @@
-package com.loxpression.execution;
+package com.loxpression.ir;
 
 import org.junit.jupiter.api.Test;
 

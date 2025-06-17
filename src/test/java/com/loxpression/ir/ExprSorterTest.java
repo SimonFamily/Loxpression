@@ -1,4 +1,4 @@
-package com.loxpression.execution;
+package com.loxpression.ir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,29 +24,26 @@ class ExprSorterTest {
 		srcs.add("a = m + n");
 		srcs.add("b = a * 2");
 		srcs.add("c = n + w + b");
-		List<Expr> exprs = new ArrayList<Expr>();
 		for (String expression : srcs) {
-			Parser p = new Parser(expression);
-			Expr expr = p.expression();
-			exprs.add(expr);
 			System.out.println(expression);
 		}
 		
 		LoxContext context = new LoxContext();
 		LoxRunner runner = new LoxRunner();
-		List<ExprInfo> exprInfos = runner.parseExpressions(srcs);
+		List<Expr> exprs = runner.parse(srcs);
+		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		context.prepareExecute(exprInfos);
 		ExprSorter sorter = new ExprSorter(context);
 		exprInfos = sorter.sort();
 		System.out.println("排序结果为：");
 		for (ExprInfo info : exprInfos) {
-			System.out.println(info.getSrc());
+			System.out.println(srcs.get(info.getIndex()));
 		}
 		assertTrue(exprInfos != null && exprInfos.size() == 4);
-		assertEquals("a = m + n", exprInfos.get(0).getSrc());
-		assertEquals("b = a * 2", exprInfos.get(1).getSrc());
-		assertEquals("c = n + w + b", exprInfos.get(2).getSrc());
-		assertEquals("x = y = a + b * c", exprInfos.get(3).getSrc());
+		assertEquals("a = m + n", srcs.get(exprInfos.get(0).getIndex()));
+		assertEquals("b = a * 2", srcs.get(exprInfos.get(1).getIndex()));
+		assertEquals("c = n + w + b", srcs.get(exprInfos.get(2).getIndex()));
+		assertEquals("x = y = a + b * c", srcs.get(exprInfos.get(3).getIndex()));
 		
 		runner = new LoxRunner();
 		Environment env = new DefaultEnvironment();
@@ -71,32 +68,25 @@ class ExprSorterTest {
 		srcs.add("a = m + n");
 		srcs.add("b = a * 2");
 		srcs.add("c = n + w + b");
-		List<Expr> exprs = new ArrayList<Expr>();
 		System.out.println("拓扑排序测试：");
 		for (String expression : srcs) {
-			Parser p = new Parser(expression);
-			Expr expr = p.expression();
-			exprs.add(expr);
 			System.out.println(expression);
 		}
 		
-		LoxContext context = new LoxContext();
 		LoxRunner runner = new LoxRunner();
-		List<ExprInfo> exprInfos = runner.parseExpressions(srcs);
-		context.prepareExecute(exprInfos);
-		ExprSorter sorter = new ExprSorter(context);
-		exprInfos = sorter.sort();
+		List<Expr> exprs = runner.parse(srcs);
+		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		System.out.println("排序结果为：");
 		for (ExprInfo info : exprInfos) {
-			System.out.println(info.getSrc());
+			System.out.println(srcs.get(info.getIndex()));
 		}
 		assertTrue(exprInfos != null && exprInfos.size() == 6);
-		assertEquals("a = m + n", exprInfos.get(0).getSrc());
-		assertEquals("b = a * 2", exprInfos.get(1).getSrc());
-		assertEquals("c = n + w + b", exprInfos.get(2).getSrc());
-		assertEquals("x = y = a + b * c", exprInfos.get(3).getSrc());
-		assertEquals("b * 2 + 1", exprInfos.get(4).getSrc());
-		assertEquals("a * b + c", exprInfos.get(5).getSrc());
+		assertEquals("a = m + n", srcs.get(exprInfos.get(0).getIndex()));
+		assertEquals("b = a * 2", srcs.get(exprInfos.get(1).getIndex()));
+		assertEquals("c = n + w + b", srcs.get(exprInfos.get(2).getIndex()));
+		assertEquals("x = y = a + b * c", srcs.get(exprInfos.get(3).getIndex()));
+		assertEquals("b * 2 + 1", srcs.get(exprInfos.get(4).getIndex()));
+		assertEquals("a * b + c", srcs.get(exprInfos.get(5).getIndex()));
 		
 		runner = new LoxRunner();
 		Environment env = new DefaultEnvironment();

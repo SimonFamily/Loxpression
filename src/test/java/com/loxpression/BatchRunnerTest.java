@@ -35,7 +35,7 @@ class BatchRunnerTest {
 		}
 		
 		Environment env = new DefaultEnvironment();
-		for (int i = 1; i <= lines.size(); i++) {
+		for (int i = 1; i <= cnt; i++) {
 			env.put("E" + i, 2);
 			env.put("F" + i, 3);
 			env.put("M" + i, 4);

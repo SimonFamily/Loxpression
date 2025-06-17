@@ -4,6 +4,7 @@ import com.loxpression.visitors.Visitor;
 
 public class IfExpr extends Expr {
 	
+	private static final long serialVersionUID = -7174468682531226449L;
 	public final Expr condition;
 	public final Expr thenBranch;
 	public final Expr elseBranch;

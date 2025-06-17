@@ -4,6 +4,7 @@ import com.loxpression.parser.Token;
 import com.loxpression.visitors.Visitor;
 
 public class BinaryExpr extends Expr {
+	private static final long serialVersionUID = -789274794235346710L;
 	public final Expr left;
 	public final Token operator;
 	public final Expr right;

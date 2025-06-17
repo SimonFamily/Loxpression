@@ -6,6 +6,7 @@ import com.loxpression.parser.Token;
 import com.loxpression.visitors.Visitor;
 
 public class CallExpr extends Expr {
+	private static final long serialVersionUID = -1180324340117318674L;
 	public final Expr callee;
 	public final List<Expr> arguments;
 	public final Token rParen;

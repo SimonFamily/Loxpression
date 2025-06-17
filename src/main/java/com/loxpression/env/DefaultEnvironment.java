@@ -3,7 +3,7 @@ package com.loxpression.env;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.loxpression.execution.ExecuteContext;
+import com.loxpression.ir.ExecuteContext;
 import com.loxpression.values.Value;
 
 public class DefaultEnvironment extends Environment {

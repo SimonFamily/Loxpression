@@ -1,5 +1,6 @@
-package com.loxpression.execution;
+package com.loxpression.ir;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,19 +10,16 @@ import com.loxpression.expr.SetExpr;
 import com.loxpression.visitors.VariableSet;
 import com.loxpression.visitors.VarsQuery;
 
-public class ExprInfo {
+public class ExprInfo implements Serializable {
+	private static final long serialVersionUID = 6879322173657186528L;
 	private Set<String> precursors = new HashSet<String>(); // 依赖的变量 read
 	private Set<String> successors = new HashSet<String>(); // 被赋值的变量 write
 	private Expr expr;
-	private String src;
 	private int index;
-	private boolean isAssign;
 
-	public ExprInfo(Expr expr, String src, int index) {
+	public ExprInfo(Expr expr, int index) {
 		this.expr = expr;
-		this.src = src;
 		this.index = index;
-		this.isAssign = expr instanceof AssignExpr || expr instanceof SetExpr;
 		this.initVariables();
 	}
 	
@@ -35,7 +33,7 @@ public class ExprInfo {
 	}
 	
 	public boolean isAssign() {
-		return isAssign;
+		return expr instanceof AssignExpr || expr instanceof SetExpr;
 	}
 
 	public Set<String> getPrecursors() {
@@ -60,14 +58,6 @@ public class ExprInfo {
 
 	public void setExpr(Expr expr) {
 		this.expr = expr;
-	}
-
-	public String getSrc() {
-		return src;
-	}
-
-	public void setSrc(String src) {
-		this.src = src;
 	}
 
 	public int getIndex() {

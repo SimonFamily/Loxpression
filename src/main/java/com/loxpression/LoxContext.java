@@ -2,9 +2,9 @@ package com.loxpression;
 
 import java.util.List;
 
-import com.loxpression.execution.ExecuteContext;
-import com.loxpression.execution.ExprInfo;
 import com.loxpression.expr.Expr;
+import com.loxpression.ir.ExecuteContext;
+import com.loxpression.ir.ExprInfo;
 
 public class LoxContext {
 	private Tracer tracer;

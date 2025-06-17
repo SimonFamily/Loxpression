@@ -1,7 +1,7 @@
 package com.loxpression.env;
 
 import com.loxpression.Instance;
-import com.loxpression.execution.ExecuteContext;
+import com.loxpression.ir.ExecuteContext;
 import com.loxpression.values.Value;
 
 public abstract class Environment {

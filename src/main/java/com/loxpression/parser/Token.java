@@ -1,8 +1,11 @@
 package com.loxpression.parser;
 
+import java.io.Serializable;
+
 import com.loxpression.values.Value;
 
-public class Token {
+public class Token implements Serializable {
+	private static final long serialVersionUID = -8714620339708759254L;
 	public final TokenType type;
 	public final String lexeme;
 	public final Value literal;
