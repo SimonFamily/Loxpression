@@ -1,6 +1,11 @@
 package com.loxpression.execution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.loxpression.env.Environment;
+import com.loxpression.execution.chunk.Chunk;
+import com.loxpression.execution.chunk.ChunkReader;
 import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
 import com.loxpression.values.ValuesHelper;
@@ -11,8 +16,7 @@ public class VM {
 	
 	private Value[] stack;
 	private int stackTop;
-	private Chunk chunk;
-	private int ip;
+	private ChunkReader chunkReader;
 
 	private VM() {
 		this.stack = new Value[STACK_MAX];
@@ -24,8 +28,7 @@ public class VM {
 
 	private void reset() {
 		this.stackTop = 0;
-		this.ip = 0;
-		this.chunk = null;
+		this.chunkReader = null;
 	}
 
 	private void push(Value value) {
@@ -44,81 +47,96 @@ public class VM {
 		return this.stack[stackTop - 1 - distance];
 	}
 
-	public Value execute(Chunk chunk, Environment env) {
+	public List<ExResult> execute(Chunk chunk, Environment env) {
 		reset();
-		this.chunk = chunk;
+		this.chunkReader = new ChunkReader(chunk);
 		return run(env);
 	}
 
-	private Value run(Environment env) {
+	private List<ExResult> run(Environment env) {
+		List<ExResult> result = new ArrayList<ExResult>();
+		int expOrder = 0;
 		OpCode op;
 		for (;;) {
-			byte code = readCode();
-			op = OpCode.forValue(code);
-			switch (op) {
-			case OP_CONSTANT: {
-				push(readConstant());
-				break;
-			}
-			case OP_GET_GLOBAL: {
-				String name = readString();
-				Value v = env.getOrDefault(name, new Value());
-				push(v);
-				break;
-			}
-			case OP_SET_GLOBAL: {
-				String name = readString();
-				env.put(name, peek()); // 赋值语句也有返回值，不弹出结果
-				break;
-			}
-			case OP_ADD:
-				binaryOp(TokenType.PLUS);
-				break;
-			case OP_SUBTRACT:
-				binaryOp(TokenType.MINUS);
-				break;
-			case OP_MULTIPLY:
-				binaryOp(TokenType.STAR);
-				break;
-			case OP_DIVIDE:
-				binaryOp(TokenType.SLASH);
-				break;
-			case OP_MODE:
-				binaryOp(TokenType.PERCENT);
-				break;
-			case OP_POWER:
-				binaryOp(TokenType.STARSTAR);
-				break;
-			case OP_GREATER:
-				binaryOp(TokenType.GREATER);
-				break;
-			case OP_GREATER_EQUAL:
-				binaryOp(TokenType.GREATER_EQUAL);
-				break;
-			case OP_LESS:
-				binaryOp(TokenType.LESS);
-				break;
-			case OP_LESS_EQUAL:
-				binaryOp(TokenType.LESS_EQUAL);
-				break;
-			case OP_EQUAL_EQUAL:
-				binaryOp(TokenType.EQUAL_EQUAL);
-				break;
-			case OP_BANG_EQUAL:
-				binaryOp(TokenType.BANG_EQUAL);
-				break;
-			case OP_NOT:
-				preUnaryOp(TokenType.BANG);
-				break;
-			case OP_NEGATE:
-				preUnaryOp(TokenType.MINUS);
-				break;
-			case OP_RETURN: {
-				Value result = pop();
-				return result;
-			}
-			default:
-				break;
+			op = readCode();
+			try {
+				switch (op) {
+				case OP_BEGIN:
+					expOrder = readInt();
+					break;
+				case OP_END: {
+					Value v = pop();
+					ExResult res = new ExResult(v, ExState.OK);
+					res.setIndex(expOrder);
+					result.add(res);
+					break;
+				}
+				case OP_CONSTANT: {
+					push(readConstant());
+					break;
+				}
+				case OP_GET_GLOBAL: {
+					String name = readString();
+					Value v = env.getOrDefault(name, new Value());
+					push(v);
+					break;
+				}
+				case OP_SET_GLOBAL: {
+					String name = readString();
+					env.put(name, peek()); // 赋值语句也有返回值，不弹出结果
+					break;
+				}
+				case OP_ADD:
+					binaryOp(TokenType.PLUS);
+					break;
+				case OP_SUBTRACT:
+					binaryOp(TokenType.MINUS);
+					break;
+				case OP_MULTIPLY:
+					binaryOp(TokenType.STAR);
+					break;
+				case OP_DIVIDE:
+					binaryOp(TokenType.SLASH);
+					break;
+				case OP_MODE:
+					binaryOp(TokenType.PERCENT);
+					break;
+				case OP_POWER:
+					binaryOp(TokenType.STARSTAR);
+					break;
+				case OP_GREATER:
+					binaryOp(TokenType.GREATER);
+					break;
+				case OP_GREATER_EQUAL:
+					binaryOp(TokenType.GREATER_EQUAL);
+					break;
+				case OP_LESS:
+					binaryOp(TokenType.LESS);
+					break;
+				case OP_LESS_EQUAL:
+					binaryOp(TokenType.LESS_EQUAL);
+					break;
+				case OP_EQUAL_EQUAL:
+					binaryOp(TokenType.EQUAL_EQUAL);
+					break;
+				case OP_BANG_EQUAL:
+					binaryOp(TokenType.BANG_EQUAL);
+					break;
+				case OP_NOT:
+					preUnaryOp(TokenType.BANG);
+					break;
+				case OP_NEGATE:
+					preUnaryOp(TokenType.MINUS);
+					break;
+				case OP_RETURN:
+					break;
+				case OP_EXIT:
+					return result;
+				default:
+					break;
+				}
+			} catch (Exception e) {
+				throw e; // todo: execute next expression
 			}
 		}
 	}
@@ -142,15 +160,24 @@ public class VM {
 	}
 
 	private Value readConstant() {
-		byte index = readCode();
-		return currentChunk().readContant(index);
+		int index = readInt();
+		return currentChunk().readConst(index);
+	}
+	
+	private OpCode readCode() {
+		byte code = readByte();
+		return OpCode.forValue(code);
 	}
 
-	private byte readCode() {
-		return (byte)currentChunk().readCode(ip++);
+	private byte readByte() {
+		return currentChunk().readByte();
+	}
+	
+	private int readInt() {
+		return currentChunk().readInt();
 	}
 
-	private Chunk currentChunk() {
-		return this.chunk;
+	private ChunkReader currentChunk() {
+		return this.chunkReader;
 	}
 }

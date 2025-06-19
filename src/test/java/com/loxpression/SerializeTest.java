@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
-import com.loxpression.execution.Chunk;
+import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.expr.Expr;
 import com.loxpression.ir.ExprInfo;
 
 public class SerializeTest {
 	private static final int FORMULA_BATCHES = 10000;
-	private static final int RUN_BATCHES = 100;
+	private static final int RUN_BATCHES = 10;
 	//@Test
 	void test() throws IOException {
 		//formulaFileTest();
@@ -37,9 +37,8 @@ public class SerializeTest {
 		long start = System.currentTimeMillis();
 		System.out.println("开始生成公式：");
 		List<String> lines = createFormulas();
-		String outputDir = System.getProperty("user.dir");
 		String fileName = "formulas.txt";
-		String path = Paths.get(outputDir, ".temp", fileName).toString();
+		String path = getPath(fileName);
 		PrintWriter writer = new PrintWriter(path, "UTF-8");
 
 		for (int i = 0; i < lines.size(); i++) {
@@ -66,9 +65,8 @@ public class SerializeTest {
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		
-		String outputDir = System.getProperty("user.dir");
 		String fileName = "ExprInfos.ser";
-		String path = Paths.get(outputDir, ".temp", fileName).toString();
+		String path = getPath(fileName);
 		serializeObject(exprInfos, path);
 		System.out.println("语法树已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
 
@@ -87,7 +85,7 @@ public class SerializeTest {
 		System.out.println("语法树执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 		
 		//String json = new Gson().toJson(exprInfos);
-		//writeString(json, Paths.get(outputDir, ".temp", "ExprInfos.json").toString());
+		//writeString(json, getPath("ExprInfos.json"));
 		System.out.println("==========");
 	}
 	
@@ -98,30 +96,29 @@ public class SerializeTest {
 		LoxRunner runner = new LoxRunner();
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		List<Chunk> chunks = runner.compile(exprInfos);
+		Chunk chunk = runner.compile(exprInfos);
 		
-		String outputDir = System.getProperty("user.dir");
 		String fileName = "Chunks.ser";
-		String path = Paths.get(outputDir, ".temp", fileName).toString();
-		serializeObject(chunks, path);
+		String path = getPath(fileName);
+		serializeObject(chunk, path);
 		System.out.println("字节码已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
 
 		start = System.currentTimeMillis();
 		System.out.println("开始字节码反序列化：");
-		chunks = deserializeObject(path);
+		chunk = deserializeObject(path);
 		System.out.println("字节码反序列化完成。" + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
 		
 		start = System.currentTimeMillis();
 		System.out.println("开始执行字节码：");
 		Environment env = getEnvironment();
 		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.run(chunks, env);
+			runner.run(chunk, env);
 		}
 		checkResult(env);
 		System.out.println("字节码执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 		
 		//String json = new Gson().toJson(chunks);
-		//writeString(json, Paths.get(outputDir, ".temp", "Chunks.json").toString());
+		//writeString(json, getPath("Chunks.json"));
 		System.out.println("==========");
 	}
 
@@ -132,9 +129,8 @@ public class SerializeTest {
 		LoxRunner runner = new LoxRunner();
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		String outputDir = System.getProperty("user.dir");
 		String fileName = "ExprInfos.json";
-		String path = Paths.get(outputDir, ".temp", fileName).toString();
+		String path = getPath(fileName);
 		String json = "";
 		//json = new Gson().toJson(exprInfos);
 		writeString(json, path);
@@ -195,6 +191,11 @@ public class SerializeTest {
 		assertEquals(59, env.get("C10000").getValue());
 		assertEquals(29, env.get("D10000").getValue());
 		assertEquals(9, env.get("G10000").getValue());
+	}
+	
+	private String getPath(String fileName) {
+		String outputDir = System.getProperty("user.dir");
+		return Paths.get(outputDir, ".temp", fileName).toString();
 	}
 
 	private static void writeString(String content, String filePath) {

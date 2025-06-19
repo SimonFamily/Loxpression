@@ -3,32 +3,34 @@ package com.loxpression.values;
 import java.util.*;
 
 public enum ValueType {
-	Integer(0), 
-	Double(1), 
-	String(2), 
-	Boolean(3), 
-	Instance(4), 
-	Null(5);
+	Integer((byte)1), 
+	Long((byte)2),
+	Float((byte)3),
+	Double((byte)4), 
+	String((byte)5), 
+	Boolean((byte)6), 
+	Instance((byte)7), 
+	Null((byte)8);
 	
-	private int value;
-	private static Map<Integer, ValueType> mappings;
-	private synchronized static Map<Integer, ValueType> getMappings() {
+	private byte value;
+	private static Map<Byte, ValueType> mappings;
+	private synchronized static Map<Byte, ValueType> getMappings() {
 		if (mappings == null) {
-			mappings = new HashMap<Integer, ValueType>();
+			mappings = new HashMap<Byte, ValueType>();
 		}
 		return mappings;
 	}
 	
-	private ValueType(int value) {
+	private ValueType(byte value) {
 		this.value = value;
 		getMappings().put(value, this);
 	}
 	
-	public int getValue() {
+	public byte getValue() {
 		return value;
 	}
 	
-	public static ValueType forValue(int value) {
+	public static ValueType forValue(byte value) {
 		return getMappings().get(value);
 	}
 }

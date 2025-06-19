@@ -2,10 +2,14 @@ package com.loxpression.execution;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.beans.Expression;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
+import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.expr.Expr;
 import com.loxpression.parser.Parser;
 import com.loxpression.values.Value;
@@ -37,9 +41,12 @@ public class VMTest {
 		Expr expr = p.expression();
 		
 		OpCodeCompiler compiler = new OpCodeCompiler();
-		Chunk chunk = compiler.compile(expr);
+		compiler.beginCompile();
+		compiler.compile(expr, 0);
+		Chunk chunk = compiler.endCompile();
 		
-		Value v = VM.instance().execute(chunk, env);
-		return v.getValue();
+		List<ExResult> result = VM.instance().execute(chunk, env);
+		ExResult r = result.get(0);
+		return r.getResult().getValue();
 	}
 }

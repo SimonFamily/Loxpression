@@ -32,7 +32,10 @@ public enum OpCode {
 	OP_JUMP((byte)26, "jump"),
 	OP_JUMP_IF_FALSE((byte)27, "jump_if_false"),
 	OP_CALL((byte)28, "call"),
-	OP_RETURN((byte)29, "return");
+	OP_BEGIN((byte)29, "begin"),
+	OP_END((byte)30, "end"),
+	OP_RETURN((byte)31, "return"),
+	OP_EXIT((byte)32, "exit");
 
 	private byte code;
 	private String title;

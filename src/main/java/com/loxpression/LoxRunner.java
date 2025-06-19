@@ -6,8 +6,9 @@ import java.util.List;
 
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
-import com.loxpression.execution.Chunk;
+import com.loxpression.execution.ExResult;
 import com.loxpression.execution.VM;
+import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.expr.Expr;
 import com.loxpression.ir.ExprInfo;
 import com.loxpression.ir.ExprSorter;
@@ -23,7 +24,7 @@ public class LoxRunner {
 	
 	public LoxRunner() {
 		this.needSort = true;
-		this.executeMode = ExecuteMode.Interprete;
+		this.executeMode = ExecuteMode.Compile;
 		this.context = new LoxContext();
 	}
 	
@@ -53,12 +54,12 @@ public class LoxRunner {
 
 	public Object execute(String expression) {
 		Object[] result = execute(Arrays.asList(expression), new DefaultEnvironment());
-		return result[0];
+		return result == null ? null : result[0];
 	}
 	
 	public Object execute(String expression, Environment env) {
 		Object[] result = execute(Arrays.asList(expression), env);
-		return result[0];
+		return result == null ? null : result[0];
 	}
 	
 	public Object[] execute(List<String> exprs) {
@@ -71,8 +72,8 @@ public class LoxRunner {
 		List<ExprInfo> exprInfos = analyze(exprs);
 		Object[] result;
 		if (executeMode == ExecuteMode.Compile) {
-			List<Chunk> chunks = compile(exprInfos);
-			result = run(chunks, env);
+			Chunk chunk = compile(exprInfos);
+			result = run(chunk, env);
 		} else {
 			result = interprete(exprInfos, env);			
 		}
@@ -100,19 +101,20 @@ public class LoxRunner {
 		return result;
 	}
 	
-	public Object[] run(List<Chunk> chunks, Environment env) {
-		int n = chunks.size();
-		Object[] result = new Object[n];
+	public Object[] run(Chunk chunk, Environment env) {
 		context.getTracer().startTimer();
 		boolean flag = env.beforeExecute(context.getExecContext());
 		context.getTracer().endTimer("完成执行环境初始化。");
-		if (!flag) return result;
+		if (!flag) return null;
 		
 		context.getTracer().startTimer();
-		for (Chunk chunk : chunks) {
-			Value v = VM.instance().execute(chunk, env);
-			Object r = v.getValue();
-			result[chunk.getIndex()] = r;
+		List<ExResult> exResults = VM.instance().execute(chunk, env);
+		Object[] result = new Object[exResults.size()];
+		for (ExResult res : exResults) {
+			Value r = res.getResult();
+			Object o = r.getValue();
+			int index = res.getIndex();
+			result[index] = o;				
 		}
 		context.getTracer().endTimer("执行完成。");
 		return result;
@@ -146,17 +148,16 @@ public class LoxRunner {
 		return exprInfos;
 	}
 	
-	public List<Chunk> compile(List<ExprInfo> exprInfos) {
+	public Chunk compile(List<ExprInfo> exprInfos) {
 		context.getTracer().startTimer();
-		int n = exprInfos.size();
-		List<Chunk> result = new ArrayList<Chunk>(n);
+		OpCodeCompiler compiler = new OpCodeCompiler(exprInfos.size());
+		compiler.beginCompile();
 		for (ExprInfo exprInfo : exprInfos) {
 			Expr expr = exprInfo.getExpr();
-			OpCodeCompiler compiler = new OpCodeCompiler();
-			Chunk chunk = compiler.compile(expr);
-			chunk.setIndex(exprInfo.getIndex());
-			result.add(chunk);
+			int index = exprInfo.getIndex();
+			compiler.compile(expr, index);
 		}
+		Chunk result = compiler.endCompile();
 		context.getTracer().endTimer("完成表达式编译。");
 		return result;
 	}

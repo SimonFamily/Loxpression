@@ -7,7 +7,7 @@ import com.loxpression.Instance;
 public class Value implements Serializable {
 	private static final long serialVersionUID = -7529873590511413244L;
 	private Object v;
-	private int vt;
+	private byte vt;
 	
 	public Object getValue() {
 		return v;
@@ -119,6 +119,7 @@ public class Value implements Serializable {
 		Value other = (Value)o;
 		if (this.vt != other.vt)
 			return false;
+		
 		ValueType valueType = ValueType.forValue(vt);
 		switch (valueType) {
 		case Null:

@@ -2,25 +2,39 @@ package com.loxpression.visitors;
 
 import static com.loxpression.execution.OpCode.*;
 
-import com.loxpression.execution.Chunk;
-import com.loxpression.execution.ChunkMaker;
 import com.loxpression.execution.OpCode;
+import com.loxpression.execution.chunk.Chunk;
+import com.loxpression.execution.chunk.ChunkWriter;
 import com.loxpression.expr.AssignExpr;
 import com.loxpression.expr.*;
 import com.loxpression.parser.Token;
 import com.loxpression.values.Value;
 
+// 将语法树编译为字节码
 public class OpCodeCompiler implements Visitor<Void> {
-	private ChunkMaker chunkMaker;
+	private ChunkWriter chunkWriter;
 
-	public OpCodeCompiler() {
+	public OpCodeCompiler(int chunkCapacity) {
+		this.chunkWriter = new ChunkWriter(chunkCapacity);
 	}
 	
-	public Chunk compile(Expr expr) {
-		this.chunkMaker = new ChunkMaker();
+	public OpCodeCompiler() {
+		this.chunkWriter = new ChunkWriter();
+	}
+	
+	public void beginCompile() {
+		chunkWriter.clear();
+	}
+	
+	public void compile(Expr expr, int order) {
+		emitOp(OP_BEGIN, order);
 		execute(expr);
-		emitOp(OP_RETURN); // 表达式都有返回值
-		return this.chunkMaker.flush();
+		emitOp(OP_END); // 表达式都有返回值
+	}
+	
+	public Chunk endCompile() {
+		emitOp(OP_EXIT);
+		return this.chunkWriter.flush();
 	}
 
 	private void execute(Expr expr) {
@@ -106,8 +120,8 @@ public class OpCodeCompiler implements Visitor<Void> {
 
 	@Override
 	public Void visit(IdExpr expr) {
-		byte constant = makeConstant(new Value(expr.id));
-		emitOp(OP_GET_GLOBAL, constant); // 带一个参数的字节码
+		int constant = makeConstant(new Value(expr.id));
+		emitOp(OP_GET_GLOBAL, constant); // 带一个常量参数的字节码
 		return null;
 	}
 
@@ -115,8 +129,8 @@ public class OpCodeCompiler implements Visitor<Void> {
 	public Void visit(AssignExpr expr) {
 		execute(expr.right);
 		IdExpr idExpr = (IdExpr) expr.left;
-		byte constant = makeConstant(new Value(idExpr.id));
-		emitOp(OP_SET_GLOBAL, constant); // 带一个参数的字节码
+		int constant = makeConstant(new Value(idExpr.id));
+		emitOp(OP_SET_GLOBAL, constant); // 带一个常量参数的字节码
 		return null;
 	}
 
@@ -143,32 +157,36 @@ public class OpCodeCompiler implements Visitor<Void> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	private void emitConstant(Value value) {
-		emitBytes(OP_CONSTANT.getValue(), makeConstant(value));
+	
+	private void emitOp(OpCode opCode) {
+		emitByte(opCode.getValue());
 	}
-
+	
 	private void emitOp(OpCode opCode, byte arg) {
 		emitOp(opCode);
 		emitByte(arg);
 	}
 
-	private void emitOp(OpCode opCode) {
-		emitByte(opCode.getValue());
+	private void emitOp(OpCode opCode, int arg) {
+		emitOp(opCode);
+		emitInt(arg);
 	}
 
-	private void emitBytes(byte code1, byte code2) {
-		emitByte(code1);
-		emitByte(code2);
+	private void emitConstant(Value value) {
+		int index = makeConstant(value);
+		emitOp(OP_CONSTANT, index);
 	}
 
-	private byte makeConstant(Value value) {
-		byte constant = chunkMaker.addContant(value);
-		return constant;
+	private int makeConstant(Value value) {
+		int index = chunkWriter.addContant(value);
+		return index;
+	}
+	
+	private void emitInt(int value) {
+		this.chunkWriter.writeInt(value);
 	}
 
 	private void emitByte(byte code) {
-		this.chunkMaker.writeCode(code);
+		this.chunkWriter.writeByte(code);
 	}
-
 }
