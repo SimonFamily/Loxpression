@@ -1,24 +1,26 @@
 package com.loxpression.execution.chunk;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
-import com.loxpression.CompileError;
+import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
 import com.loxpression.values.Value;
 
 public class ChunkWriter {
 	private ByteBuffer codeBuffer;
 	private ConstantPool constPool;
+	private Tracer tracer;
 	
-	public ChunkWriter(int capacity) {
+	public ChunkWriter(int capacity, Tracer tracer) {
+		this.tracer = tracer;
 		codeBuffer = ByteBuffer.allocate(Math.max(capacity, 128));
-		constPool = new ConstantPool(capacity);
+		constPool = new ConstantPool(capacity, tracer);
 	}
 
-	public ChunkWriter() {
+	public ChunkWriter(Tracer tracer) {
+		this.tracer = tracer;
 		codeBuffer = ByteBuffer.allocate(1024);
-		constPool = new ConstantPool();
+		constPool = new ConstantPool(tracer);
 	}
 
 	public Chunk flush() {
@@ -26,10 +28,10 @@ public class ChunkWriter {
 		byte[] codeBytes = new byte[codeBuffer.remaining()];
 		codeBuffer.get(codeBytes);
 		
-		Value[] constArr = constPool.toArray();
+		byte[] constBytes = constPool.toBytes();
 		
 		codeBuffer.clear();
-		return new Chunk(codeBytes, constArr);
+		return new Chunk(codeBytes, constBytes);
 	}
 	
 	public void clear() {

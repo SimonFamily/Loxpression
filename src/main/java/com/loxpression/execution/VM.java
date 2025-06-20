@@ -3,6 +3,7 @@ package com.loxpression.execution;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.loxpression.Tracer;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.execution.chunk.ChunkReader;
@@ -12,18 +13,15 @@ import com.loxpression.values.ValuesHelper;
 
 public class VM {
 	private final static int STACK_MAX = 256;
-	private static final ThreadLocal<VM> vmHolder = ThreadLocal.withInitial(VM::new);
 	
 	private Value[] stack;
 	private int stackTop;
 	private ChunkReader chunkReader;
+	private Tracer tracer;
 
-	private VM() {
+	public VM(Tracer tracer) {
+		this.tracer = tracer;
 		this.stack = new Value[STACK_MAX];
-	}
-	
-	public static VM instance() {
-		return vmHolder.get();
 	}
 
 	private void reset() {
@@ -49,11 +47,12 @@ public class VM {
 
 	public List<ExResult> execute(Chunk chunk, Environment env) {
 		reset();
-		this.chunkReader = new ChunkReader(chunk);
+		this.chunkReader = new ChunkReader(chunk, tracer);
 		return run(env);
 	}
 
 	private List<ExResult> run(Environment env) {
+		tracer.startTimer("运行虚拟机");
 		List<ExResult> result = new ArrayList<ExResult>();
 		int expOrder = 0;
 		OpCode op;
@@ -131,6 +130,7 @@ public class VM {
 				case OP_RETURN:
 					break;
 				case OP_EXIT:
+					tracer.endTimer("虚拟机运行结束。");
 					return result;
 				default:
 					break;

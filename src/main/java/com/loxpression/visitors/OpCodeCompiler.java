@@ -2,6 +2,7 @@ package com.loxpression.visitors;
 
 import static com.loxpression.execution.OpCode.*;
 
+import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
 import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.execution.chunk.ChunkWriter;
@@ -13,13 +14,16 @@ import com.loxpression.values.Value;
 // 将语法树编译为字节码
 public class OpCodeCompiler implements Visitor<Void> {
 	private ChunkWriter chunkWriter;
+	private Tracer tracer;
 
-	public OpCodeCompiler(int chunkCapacity) {
-		this.chunkWriter = new ChunkWriter(chunkCapacity);
+	public OpCodeCompiler(int chunkCapacity, Tracer tracer) {
+		this.chunkWriter = new ChunkWriter(chunkCapacity, tracer);
+		this.tracer = tracer;
 	}
 	
-	public OpCodeCompiler() {
-		this.chunkWriter = new ChunkWriter();
+	public OpCodeCompiler(Tracer tracer) {
+		this.chunkWriter = new ChunkWriter(tracer);
+		this.tracer = tracer;
 	}
 	
 	public void beginCompile() {

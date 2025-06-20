@@ -24,13 +24,63 @@ import com.loxpression.ir.ExprInfo;
 
 public class SerializeTest {
 	private static final int FORMULA_BATCHES = 10000;
-	private static final int RUN_BATCHES = 10;
-	//@Test
+	private static final int RUN_BATCHES = 1;
+	@Test
 	void test() throws IOException {
+		System.out.println("序列化反序列化测试：");
 		//formulaFileTest();
 		//jsonSerializeTest();
-		objectSerializeTest();
+		//objectSerializeTest();
 		chunkSerializeTest();
+	}
+	
+	void chunkSerializeTest() {
+		List<String> lines = createFormulas();
+		System.out.println("表达式总数：" + lines.size());
+		
+		LoxRunner runner = new LoxRunner();
+		
+		System.out.println("开始解析和分析：");
+		long start = System.currentTimeMillis();
+		List<Expr> exprs = runner.parse(lines);
+		List<ExprInfo> exprInfos = runner.analyze(exprs);
+		System.out.println("中间结果生成完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
+		
+		runner.setTrace(true);
+		Chunk chunk = runner.compileIR(exprInfos);
+		
+		System.out.println("开始进行字节码序列化反序列化，字节码大小(KB)：" + (chunk.getByteSize() / 1024));
+		start = System.currentTimeMillis();
+		String fileName = "Chunks.ser";
+		String path = getPath(fileName);
+		serializeObject(chunk, path);
+		System.out.println("字节码已序列化到文件：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		chunk = deserializeObject(path);
+		System.out.println("完成从文件反序列化字节码。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
+		
+		System.out.println("开始执行字节码：");
+		start = System.currentTimeMillis();
+		Environment env = getEnvironment();
+		for (int i = 0; i < RUN_BATCHES; i++) {
+			runner.runChunk(chunk, env);
+		}
+		checkResult(env);
+		System.out.println("字节码执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
+		
+		System.out.print("开始执行语法树");
+		start = System.currentTimeMillis();
+		env = getEnvironment();
+		for (int i = 0; i < RUN_BATCHES; i++) {
+			runner.runIR(exprInfos, env);
+		}
+		checkResult(env);
+		System.out.println("语法树执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
+		
+		//String json = new Gson().toJson(chunks);
+		//writeString(json, getPath("Chunks.json"));
+		System.out.println("==========");
 	}
 
 	void formulaFileTest() throws IOException {
@@ -79,46 +129,13 @@ public class SerializeTest {
 		System.out.println("开始执行语法树：");
 		Environment env = getEnvironment();
 		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.interprete(exprInfos, env);			
+			runner.runIR(exprInfos, env);			
 		}
 		checkResult(env);
 		System.out.println("语法树执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 		
 		//String json = new Gson().toJson(exprInfos);
 		//writeString(json, getPath("ExprInfos.json"));
-		System.out.println("==========");
-	}
-	
-	void chunkSerializeTest() {
-		long start = System.currentTimeMillis();
-		System.out.println("开始进行字节码序列化：");
-		List<String> lines = createFormulas();
-		LoxRunner runner = new LoxRunner();
-		List<Expr> exprs = runner.parse(lines);
-		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		Chunk chunk = runner.compile(exprInfos);
-		
-		String fileName = "Chunks.ser";
-		String path = getPath(fileName);
-		serializeObject(chunk, path);
-		System.out.println("字节码已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
-
-		start = System.currentTimeMillis();
-		System.out.println("开始字节码反序列化：");
-		chunk = deserializeObject(path);
-		System.out.println("字节码反序列化完成。" + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
-		
-		start = System.currentTimeMillis();
-		System.out.println("开始执行字节码：");
-		Environment env = getEnvironment();
-		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.run(chunk, env);
-		}
-		checkResult(env);
-		System.out.println("字节码执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
-		//String json = new Gson().toJson(chunks);
-		//writeString(json, getPath("Chunks.json"));
 		System.out.println("==========");
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.loxpression.Tracer;
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
@@ -40,13 +41,15 @@ public class VMTest {
 		Parser p = new Parser(src);
 		Expr expr = p.expression();
 		
-		OpCodeCompiler compiler = new OpCodeCompiler();
+		Tracer tracer = new Tracer();
+		OpCodeCompiler compiler = new OpCodeCompiler(tracer);
 		compiler.beginCompile();
 		compiler.compile(expr, 0);
 		Chunk chunk = compiler.endCompile();
 		
-		List<ExResult> result = VM.instance().execute(chunk, env);
-		ExResult r = result.get(0);
+		VM vm = new VM(tracer);
+		List<ExResult> exResults = vm.execute(chunk, env);
+		ExResult r = exResults.get(0);
 		return r.getResult().getValue();
 	}
 }

@@ -1,18 +1,21 @@
 package com.loxpression.execution.chunk;
 
 import java.io.Serializable;
-import com.loxpression.values.Value;
 
 public class Chunk implements Serializable {
 	private static final long serialVersionUID = -4950147318953824044L;
 	
 	byte[] codes;
-	Value[] constants;
+	byte[] constants;
 	
 	public Chunk() { }
 
-	public Chunk(byte[] codes, Value[] constants) {
+	public Chunk(byte[] codes, byte[] constants) {
 		this.codes = codes;
 		this.constants = constants;
+	}
+	
+	public int getByteSize() {
+		return codes.length + constants.length;
 	}
 }

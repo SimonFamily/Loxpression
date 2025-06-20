@@ -2,17 +2,17 @@ package com.loxpression.execution;
 
 import org.junit.jupiter.api.Test;
 
+import com.loxpression.Tracer;
 import com.loxpression.execution.chunk.ChunkWriter;
 import com.loxpression.values.Value;
 import static com.loxpression.execution.OpCode.*;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public class ChunkTest {
 	@Test
 	void test() {
-		ChunkWriter chunkMaker = new ChunkWriter();
+		ChunkWriter chunkMaker = new ChunkWriter(new Tracer());
 		int i = chunkMaker.addContant(new Value(1));
 		chunkMaker.writeCode(OP_CONSTANT);
 		chunkMaker.writeByte((byte)i);
@@ -72,7 +72,6 @@ public class ChunkTest {
 		// 创建正确大小的数组
 		buffer.flip();
 		byte[] result = new byte[buffer.remaining()];
-		// 将数据复制到数组
 		buffer.get(result);
 	}
 	

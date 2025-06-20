@@ -30,7 +30,7 @@ public enum ValueType {
 		return value;
 	}
 	
-	public static ValueType forValue(byte value) {
+	public static ValueType valueOf(byte value) {
 		return getMappings().get(value);
 	}
 }

@@ -19,12 +19,11 @@ import com.loxpression.visitors.OpCodeCompiler;
 
 public class LoxRunner {
 	private boolean needSort;
-	private ExecuteMode executeMode;
+	private ExecuteMode executeMode = ExecuteMode.SyntaxTree;
 	private LoxContext context;
 	
 	public LoxRunner() {
 		this.needSort = true;
-		this.executeMode = ExecuteMode.Compile;
 		this.context = new LoxContext();
 	}
 	
@@ -70,26 +69,27 @@ public class LoxRunner {
 		context.getTracer().startTimer("开始。公式总数：%s", expressions.size());
 		List<Expr> exprs = parse(expressions);
 		List<ExprInfo> exprInfos = analyze(exprs);
-		Object[] result;
-		if (executeMode == ExecuteMode.Compile) {
-			Chunk chunk = compile(exprInfos);
-			result = run(chunk, env);
+		Object[] result = null;
+		if (executeMode == ExecuteMode.ChunkVM) { // 单元测试中使用
+			Chunk chunk = compileIR(exprInfos);
+			result  = runChunk(chunk, env);
 		} else {
-			result = interprete(exprInfos, env);			
+			result  = runIR(exprInfos, env);
 		}
 		context.getTracer().endTimer("结束。");
 		return result;
 	}
 	
-	public Object[] interprete(List<ExprInfo> exprInfos, Environment env) {
-		int n = exprInfos.size();
-		Object[] result = new Object[n];
+	// 执行中间表示
+	public Object[] runIR(List<ExprInfo> exprInfos, Environment env) {
 		context.getTracer().startTimer();
 		boolean flag = env.beforeExecute(context.getExecContext());
 		context.getTracer().endTimer("完成执行环境初始化。");
-		if (!flag) return result;
+		if (!flag) return null;
 		
-		context.getTracer().startTimer();
+		context.getTracer().startTimer("执行");
+		int n = exprInfos.size();
+		Object[] result = new Object[n];
 		for (ExprInfo info : exprInfos) {
 			Expr expr = info.getExpr();
 			Evaluator evtor = new Evaluator(env);
@@ -101,14 +101,16 @@ public class LoxRunner {
 		return result;
 	}
 	
-	public Object[] run(Chunk chunk, Environment env) {
+	// 执行字节码
+	public Object[] runChunk(Chunk chunk, Environment env) {
 		context.getTracer().startTimer();
 		boolean flag = env.beforeExecute(context.getExecContext());
 		context.getTracer().endTimer("完成执行环境初始化。");
 		if (!flag) return null;
 		
-		context.getTracer().startTimer();
-		List<ExResult> exResults = VM.instance().execute(chunk, env);
+		context.getTracer().startTimer("执行");
+		VM vm = new VM(context.getTracer());
+		List<ExResult> exResults = vm.execute(chunk, env);
 		Object[] result = new Object[exResults.size()];
 		for (ExResult res : exResults) {
 			Value r = res.getResult();
@@ -120,8 +122,9 @@ public class LoxRunner {
 		return result;
 	}
 	
-	public List<Expr> parse(List<String> expressions) { // 生成语法树
-		context.getTracer().startTimer();
+	// 解析生成语法树
+	public List<Expr> parse(List<String> expressions) {
+		context.getTracer().startTimer("解析");
 		List<Expr> result = new ArrayList<Expr>(expressions.size());
 		for (int i = 0; i < expressions.size(); i++) {
 			String src = expressions.get(i);
@@ -133,8 +136,9 @@ public class LoxRunner {
 		return result;
 	}
 	
-	public List<ExprInfo> analyze(List<Expr> exprs) { // 变量提取、环境准备、排序等
-		context.getTracer().startTimer();
+	// 变量提取、环境准备、排序等，得到中间表示结构
+	public List<ExprInfo> analyze(List<Expr> exprs) {
+		context.getTracer().startTimer("分析");
 		int n = exprs.size();
 		List<ExprInfo> exprInfos = new ArrayList<ExprInfo>(n);
 		for (int i = 0; i < n; i++) {
@@ -148,9 +152,20 @@ public class LoxRunner {
 		return exprInfos;
 	}
 	
-	public Chunk compile(List<ExprInfo> exprInfos) {
-		context.getTracer().startTimer();
-		OpCodeCompiler compiler = new OpCodeCompiler(exprInfos.size());
+	// 编译源码
+	public Chunk compileSrc(List<String> expressions) {
+		context.getTracer().startTimer("编译源码");
+		List<Expr> exprs = parse(expressions);
+		List<ExprInfo> exprInfos = analyze(exprs);
+		Chunk chunk = compileIR(exprInfos);
+		context.getTracer().endTimer("完成表达式编译。");
+		return chunk;
+	}
+	
+	// 编译中间表示
+	public Chunk compileIR(List<ExprInfo> exprInfos) {
+		context.getTracer().startTimer("编译中间表示");
+		OpCodeCompiler compiler = new OpCodeCompiler(exprInfos.size(), context.getTracer());
 		compiler.beginCompile();
 		for (ExprInfo exprInfo : exprInfos) {
 			Expr expr = exprInfo.getExpr();
