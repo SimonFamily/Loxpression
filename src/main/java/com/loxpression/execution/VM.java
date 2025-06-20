@@ -1,12 +1,15 @@
 package com.loxpression.execution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.loxpression.Tracer;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.execution.chunk.ChunkReader;
+import com.loxpression.functions.Function;
+import com.loxpression.functions.FunctionManager;
 import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
 import com.loxpression.values.ValuesHelper;
@@ -127,6 +130,10 @@ public class VM {
 				case OP_NEGATE:
 					preUnaryOp(TokenType.MINUS);
 					break;
+				case OP_CALL:
+					String name = readString();
+					callFunction(name);
+					break;
 				case OP_RETURN:
 					break;
 				case OP_EXIT:
@@ -139,6 +146,17 @@ public class VM {
 				throw e; // todo: execute next expression
 			}
 		}
+	}
+	
+	private void callFunction(String name) {
+		Function func = FunctionManager.getInstance().getFunction(name);
+		int cnt = func.arity();
+		Value[] args = new Value[cnt];
+		while (cnt-- > 0) {
+			args[cnt] = pop();
+		}
+		Value result = func.call(Arrays.asList(args));
+		push(result);
 	}
 
 	private void binaryOp(TokenType type) {

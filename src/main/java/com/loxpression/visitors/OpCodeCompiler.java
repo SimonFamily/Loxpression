@@ -2,12 +2,14 @@ package com.loxpression.visitors;
 
 import static com.loxpression.execution.OpCode.*;
 
+import com.loxpression.LoxRuntimeError;
 import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
 import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.execution.chunk.ChunkWriter;
-import com.loxpression.expr.AssignExpr;
 import com.loxpression.expr.*;
+import com.loxpression.functions.Function;
+import com.loxpression.functions.FunctionManager;
 import com.loxpression.parser.Token;
 import com.loxpression.values.Value;
 
@@ -140,7 +142,23 @@ public class OpCodeCompiler implements Visitor<Void> {
 
 	@Override
 	public Void visit(CallExpr expr) {
-		// TODO Auto-generated method stub
+		Expr callee = expr.callee;
+		IdExpr idExpr = (IdExpr) callee;
+		String name = idExpr == null ? "" : idExpr.id;
+		Function func = FunctionManager.getInstance().getFunction(name);
+		if (func == null) {
+			throw new LoxRuntimeError(expr.rParen, "Function undefine:" + name);
+		}
+		
+		if (expr.arguments.size() != func.arity()) {
+			throw new LoxRuntimeError(expr.rParen,
+					"Expected " + func.arity() + " arguments but got " + expr.arguments.size() + ".");
+		}
+		for (Expr arg : expr.arguments) {
+			execute(arg);
+		}
+		int constant = makeConstant(new Value(name));
+		emitOp(OP_CALL, constant); // 带一个常量参数的字节码
 		return null;
 	}
 

@@ -91,10 +91,10 @@ public class Evaluator extends VisitorBase<Value> {
 			throw new LoxRuntimeError(expr.rParen, "Can only call function");
 		}
 		
-//		if (expr.arguments.size() != func.arity()) {
-//			throw new RuntimeError(expr.rParen,
-//					"Expected " + func.arity() + " arguments but got " + expr.arguments.size() + ".");
-//		}
+		if (expr.arguments.size() != func.arity()) {
+			throw new LoxRuntimeError(expr.rParen,
+					"Expected " + func.arity() + " arguments but got " + expr.arguments.size() + ".");
+		}
 		List<Value> values = execute(expr.arguments);
 		return func.call(values);
 	}
