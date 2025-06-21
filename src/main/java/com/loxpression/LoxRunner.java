@@ -129,7 +129,7 @@ public class LoxRunner {
 		for (int i = 0; i < expressions.size(); i++) {
 			String src = expressions.get(i);
 			Parser p = new Parser(src);
-			Expr expr = p.expression();
+			Expr expr = p.parse();
 			result.add(expr);
 		}
 		context.getTracer().endTimer("完成表达式解析。");

@@ -60,8 +60,12 @@ public class Parser {
 	 * 解析表达式
 	 * @return
 	 */
-	public Expr expression() {
-		return expressionPrec(Precedence.PREC_NONE);
+	public Expr parse() {
+		Expr result = expressionPrec(Precedence.PREC_NONE);
+		if (peek().type != EOF) {
+			throw new LoxParseError(peek(), "unkown token: " + peek());
+		}
+		return result;
 	}
 	
 	/**

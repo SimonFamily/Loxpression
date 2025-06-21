@@ -37,7 +37,7 @@ public class VMTest {
 	
 	private Object execute(String src, Environment env) {
 		Parser p = new Parser(src);
-		Expr expr = p.expression();
+		Expr expr = p.parse();
 		
 		Tracer tracer = new Tracer();
 		OpCodeCompiler compiler = new OpCodeCompiler(tracer);

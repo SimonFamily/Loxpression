@@ -7,6 +7,7 @@ import com.loxpression.expr.CallExpr;
 import com.loxpression.expr.Expr;
 import com.loxpression.parser.LoxParseError;
 import com.loxpression.parser.Parser;
+import com.loxpression.parser.Precedence;
 import com.loxpression.parser.Token;
 import com.loxpression.parser.TokenType;
 import com.loxpression.parser.parselet.InfixParselet;
@@ -26,7 +27,7 @@ public class CallParselet implements InfixParselet {
 				if (argCount == 255) {
 			    	throw new LoxParseError(parser.peek(), "Can't have more than 255 arguments.");
 				}
-				Expr arg = parser.expression();
+				Expr arg = parser.expressionPrec(Precedence.PREC_NONE);
 				args.add(arg);
 				argCount++;
 			} while (parser.match(TokenType.COMMA));

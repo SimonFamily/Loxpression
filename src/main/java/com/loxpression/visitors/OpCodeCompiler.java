@@ -11,6 +11,7 @@ import com.loxpression.expr.*;
 import com.loxpression.functions.Function;
 import com.loxpression.functions.FunctionManager;
 import com.loxpression.parser.Token;
+import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
 
 // 将语法树编译为字节码
@@ -100,7 +101,20 @@ public class OpCodeCompiler implements Visitor<Void> {
 
 	@Override
 	public Void visit(LogicExpr expr) {
-		// TODO Auto-generated method stub
+		execute(expr.left);
+		if (expr.operator.type == TokenType.AND) {
+			int jumper = emitJump(OP_JUMP_IF_FALSE);
+			emitOp(OP_POP);
+			execute(expr.right);
+			patchJump(jumper);
+		} else {
+			int jumper1 = emitJump(OP_JUMP_IF_FALSE);
+			int jumper2 = emitJump(OP_JUMP);
+			patchJump(jumper1);
+			emitOp(OP_POP);
+			execute(expr.right);
+			patchJump(jumper2);
+		}
 		return null;
 	}
 

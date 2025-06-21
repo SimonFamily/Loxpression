@@ -9,7 +9,7 @@ public abstract class VisitorBase<R> implements Visitor<R> {
 	
 	public R execute(String str) {
 		Parser p = new Parser(str);
-		Expr expr = p.expression();
+		Expr expr = p.parse();
 		return expr.accept(this);
 	}
 	
