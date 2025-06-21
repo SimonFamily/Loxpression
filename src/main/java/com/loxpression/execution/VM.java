@@ -95,6 +95,25 @@ public class VM {
 					env.put(name, peek()); // 赋值语句也有返回值，不弹出结果
 					break;
 				}
+				case OP_GET_PROPERTY: {
+					String name = readString();
+					Value object = pop();
+					if (!object.isInstance()) {
+						new LoxRuntimeError("Only instances have properties. error: " + name);						
+					}
+					push(object.asInstance().get(name));
+					break;
+				}
+				case OP_SET_PROPERTY: {
+					String name = readString();
+					Value object = pop();
+					if (!object.isInstance()) {
+						new LoxRuntimeError("Only instances have properties. error: " + name);						
+					}
+					Value value = peek();
+					object.asInstance().set(name, value);
+					break;
+				}
 				case OP_ADD:
 					binaryOp(TokenType.PLUS);
 					break;

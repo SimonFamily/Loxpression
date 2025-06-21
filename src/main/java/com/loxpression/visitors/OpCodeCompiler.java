@@ -197,13 +197,18 @@ public class OpCodeCompiler implements Visitor<Void> {
 
 	@Override
 	public Void visit(GetExpr expr) {
-		// TODO Auto-generated method stub
+		execute(expr.object);
+		int constant = makeConstant(new Value(expr.name.lexeme));
+		emitOp(OP_GET_PROPERTY, constant);
 		return null;
 	}
 
 	@Override
 	public Void visit(SetExpr expr) {
-		// TODO Auto-generated method stub
+		execute(expr.value);
+		execute(expr.object);
+		int constant = makeConstant(new Value(expr.name.lexeme));
+		emitOp(OP_SET_PROPERTY, constant);
 		return null;
 	}
 	

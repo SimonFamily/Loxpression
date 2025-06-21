@@ -2,6 +2,9 @@ package com.loxpression.expr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.loxpression.Instance;
@@ -23,8 +26,13 @@ public class GetSetTest {
 		env.put("t1", t1);
 		env.put("t2", t2);
 		LoxRunner runner = new LoxRunner();
-		Object r = runner.execute("t1.x = t1.a + t2.b * t2.c", env);
-		assertEquals(7, r);
-		assertEquals(7, env.get("t1").asInstance().get("x").asInteger());
+		List<String> lines = new ArrayList<String>();
+		lines.add("t1.x = t1.a + t2.b * t2.c + m");
+		lines.add("m = t1.a + t2.b * t2.c");
+		Object[] r = runner.execute(lines, env);
+		assertEquals(7, env.get("m").getValue());
+		assertEquals(14, env.get("t1").asInstance().get("x").asInteger());
+		assertEquals(14, r[0]);
+		assertEquals(7, r[1]);
 	}
 }
