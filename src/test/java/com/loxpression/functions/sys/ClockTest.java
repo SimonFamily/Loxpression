@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import com.loxpression.LoxRunner;
-import com.loxpression.env.Environment;
 
 class ClockTest {
 

@@ -2,7 +2,6 @@ package com.loxpression.functions;
 
 import java.util.List;
 
-import com.loxpression.expr.Expr;
 import com.loxpression.values.Value;
 
 public abstract class Function implements Callable {

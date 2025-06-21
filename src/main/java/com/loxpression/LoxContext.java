@@ -2,7 +2,6 @@ package com.loxpression;
 
 import java.util.List;
 
-import com.loxpression.expr.Expr;
 import com.loxpression.ir.ExecuteContext;
 import com.loxpression.ir.ExprInfo;
 

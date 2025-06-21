@@ -14,7 +14,6 @@ import com.loxpression.expr.LiteralExpr;
 import com.loxpression.expr.LogicExpr;
 import com.loxpression.expr.SetExpr;
 import com.loxpression.expr.UnaryExpr;
-import com.loxpression.values.Value;
 
 public class VarsQuery extends VisitorBase<VariableSet> {
 	

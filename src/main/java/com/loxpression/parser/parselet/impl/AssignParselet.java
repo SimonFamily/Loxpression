@@ -1,13 +1,11 @@
 package com.loxpression.parser.parselet.impl;
 
 import com.loxpression.expr.AssignExpr;
-import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.Expr;
 import com.loxpression.expr.GetExpr;
 import com.loxpression.expr.SetExpr;
 import com.loxpression.parser.Parser;
 import com.loxpression.parser.Token;
-import com.loxpression.parser.TokenType;
 import com.loxpression.parser.parselet.InfixParselet;
 
 public class AssignParselet implements InfixParselet {

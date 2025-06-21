@@ -2,8 +2,6 @@ package com.loxpression;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
-import com.loxpression.values.Value;
 
 class BatchRunnerTest {
 	private static final int FORMULA_BATCHES = 10000;

@@ -2,7 +2,6 @@ package com.loxpression.execution;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.beans.Expression;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.expr.Expr;
 import com.loxpression.parser.Parser;
-import com.loxpression.values.Value;
 import com.loxpression.visitors.OpCodeCompiler;
 
 public class VMTest {

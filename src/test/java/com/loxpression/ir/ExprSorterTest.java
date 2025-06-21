@@ -12,7 +12,6 @@ import com.loxpression.LoxRunner;
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
 import com.loxpression.expr.Expr;
-import com.loxpression.parser.Parser;
 
 class ExprSorterTest {
 	

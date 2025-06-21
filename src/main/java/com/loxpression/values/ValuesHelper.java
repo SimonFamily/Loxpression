@@ -1,7 +1,6 @@
 package com.loxpression.values;
 
 import com.loxpression.LoxRuntimeError;
-import com.loxpression.parser.Token;
 import com.loxpression.parser.TokenType;
 
 public class ValuesHelper {

@@ -1,6 +1,5 @@
 package com.loxpression.parser.parselet.impl;
 
-import com.loxpression.expr.BinaryExpr;
 import com.loxpression.expr.Expr;
 import com.loxpression.expr.LogicExpr;
 import com.loxpression.parser.Parser;
