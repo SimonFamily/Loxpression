@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.loxpression.LoxRuntimeError;
 import com.loxpression.Tracer;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.chunk.Chunk;
@@ -77,6 +78,12 @@ public class VM {
 					push(readConstant());
 					break;
 				}
+				case OP_POP:
+					pop();
+					break;
+				case OP_NULL:
+					push(new Value());
+					break;
 				case OP_GET_GLOBAL: {
 					String name = readString();
 					Value v = env.getOrDefault(name, new Value());
@@ -134,13 +141,28 @@ public class VM {
 					String name = readString();
 					callFunction(name);
 					break;
+				case OP_JUMP_IF_FALSE: {
+					int offset = readInt();
+					if (!peek().isTruthy()) {
+						gotoOffset(offset);
+					}
+					break;
+				}
+				case OP_JUMP: {
+					int offset = readInt();
+					gotoOffset(offset);
+					break;
+				}
 				case OP_RETURN:
 					break;
 				case OP_EXIT:
-					tracer.endTimer("虚拟机运行结束。");
+					tracer.endTimer("虚拟机运行结束");
+					if (stackTop != 0) {
+						throw new LoxRuntimeError("虚拟机状态异常，栈顶位置为：" + stackTop);
+					}
 					return result;
 				default:
-					break;
+					throw new LoxRuntimeError("暂不支持的指令：" + op);
 				}
 			} catch (Exception e) {
 				throw e; // todo: execute next expression
@@ -193,6 +215,11 @@ public class VM {
 	
 	private int readInt() {
 		return currentChunk().readInt();
+	}
+	
+	private void gotoOffset(int offset) {
+		int curPos = currentChunk().position();
+		currentChunk().newPosition(curPos + offset);
 	}
 
 	private ChunkReader currentChunk() {

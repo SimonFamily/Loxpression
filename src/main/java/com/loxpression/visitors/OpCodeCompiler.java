@@ -15,6 +15,7 @@ import com.loxpression.values.Value;
 
 // 将语法树编译为字节码
 public class OpCodeCompiler implements Visitor<Void> {
+	private static final int ADDRESSSIZE = Integer.BYTES;
 	private ChunkWriter chunkWriter;
 	private Tracer tracer;
 
@@ -164,7 +165,19 @@ public class OpCodeCompiler implements Visitor<Void> {
 
 	@Override
 	public Void visit(IfExpr expr) {
-		// TODO Auto-generated method stub
+		execute(expr.condition);
+		int elseJumper = emitJump(OP_JUMP_IF_FALSE); // 跳到else分支
+		emitOp(OP_POP);
+		execute(expr.thenBranch);
+		int endJumper = emitJump(OP_JUMP); // 跳到结尾
+		patchJump(elseJumper);
+		emitOp(OP_POP);
+		if (expr.elseBranch != null) {
+			execute(expr.elseBranch);			
+		} else {
+			emitOp(OP_NULL); // condition为false但没有else分支，则返回null；
+		}
+		patchJump(endJumper);
 		return null;
 	}
 
@@ -178,6 +191,18 @@ public class OpCodeCompiler implements Visitor<Void> {
 	public Void visit(SetExpr expr) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private int emitJump(OpCode jumpCode) {
+		emitOp(jumpCode);
+		emitInt(0xffffffff);
+		return this.chunkWriter.position() - ADDRESSSIZE;
+	}
+	
+	private void patchJump(int index) {
+		// 计算跳转的偏移量，读取完指令+偏移地址后，需要跳转的偏移量会减少ADDRESSSIZE
+		int offset = this.chunkWriter.position() - index - ADDRESSSIZE;
+		this.chunkWriter.updateInt(index, offset);
 	}
 	
 	private void emitOp(OpCode opCode) {

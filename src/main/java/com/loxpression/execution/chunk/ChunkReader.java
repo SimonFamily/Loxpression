@@ -37,6 +37,14 @@ public class ChunkReader { // read后指针会往前移动，效果和虚拟机i
 	public Value readConst(int index) {
 		return constPool.readConst(index);
 	}
+	
+	public int position() {
+		return codeBuffer.position();
+	}
+	
+	public void newPosition(int newPos) {
+		codeBuffer.position(newPos);
+	}
 
 	public int codeSize() {
 		return codeBuffer.limit();

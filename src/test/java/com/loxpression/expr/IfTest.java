@@ -42,6 +42,22 @@ public class IfTest {
 	}
 	
 	@Test
+	void stateTest() {
+		Environment env = new DefaultEnvironment();
+		env.put("x1", 0);
+		env.put("y1", 0);
+		env.put("x2", 0);
+		env.put("y2", 0);
+		LoxRunner runner = new LoxRunner();
+		assertEquals(1, runner.execute("if(1 == 1, x1 = 1, y1 = 2)", env));
+		assertEquals(1, env.get("x1").getValue());
+		assertEquals(0, env.get("y1").getValue());
+		assertEquals(2, runner.execute("if(1 != 1, x2 = 1, y2 = 2)", env));
+		assertEquals(0, env.get("x2").getValue());
+		assertEquals(2, env.get("y2").getValue());
+	}
+	
+	@Test
 	void testError() {
 		Environment env = new DefaultEnvironment();
 		env.put("a", 1);
