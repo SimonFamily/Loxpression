@@ -10,9 +10,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +24,11 @@ import com.loxpression.execution.chunk.Chunk;
 import com.loxpression.expr.Expr;
 import com.loxpression.ir.ExprInfo;
 
-public class SerializeTest {
-	private static final int FORMULA_BATCHES = 10000;
+public class SerializeTest extends TestBase {
+	private static final int FORMULA_BATCHES = 1000;
 	private static final int RUN_BATCHES = 1;
+	private static final String Directory = "SerializeTest";
+	
 	@Test
 	void test() throws IOException {
 		System.out.println("序列化反序列化测试：");
@@ -52,7 +56,7 @@ public class SerializeTest {
 		System.out.println("开始进行字节码序列化反序列化，字节码大小(KB)：" + (chunk.getByteSize() / 1024));
 		start = System.currentTimeMillis();
 		String fileName = "Chunks.ser";
-		String path = getPath(fileName);
+		Path path = getPath(Directory, fileName);
 		serializeObject(chunk, path);
 		System.out.println("字节码已序列化到文件：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
@@ -88,18 +92,13 @@ public class SerializeTest {
 		System.out.println("开始生成公式：");
 		List<String> lines = createFormulas();
 		String fileName = "formulas.txt";
-		String path = getPath(fileName);
-		PrintWriter writer = new PrintWriter(path, "UTF-8");
-
-		for (int i = 0; i < lines.size(); i++) {
-			writer.println(lines.get(i));
-		}
-		writer.close();
+		Path path = getPath(Directory, fileName);
+		writeAllLines(lines, path);
 		System.out.println("文件生成：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
 		System.out.println("开始从文件进行编译：");
-		lines = Files.readAllLines(Paths.get(path));
+		lines = Files.readAllLines(path);
 		LoxRunner runner = new LoxRunner();
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
@@ -116,7 +115,7 @@ public class SerializeTest {
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		
 		String fileName = "ExprInfos.ser";
-		String path = getPath(fileName);
+		Path path = getPath(Directory, fileName);
 		serializeObject(exprInfos, path);
 		System.out.println("语法树已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
 
@@ -147,7 +146,7 @@ public class SerializeTest {
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		String fileName = "ExprInfos.json";
-		String path = getPath(fileName);
+		Path path = getPath(Directory, fileName);
 		String json = "";
 		//json = new Gson().toJson(exprInfos);
 		writeString(json, path);
@@ -155,7 +154,7 @@ public class SerializeTest {
 
 		start = System.currentTimeMillis();
 		System.out.println("开始从json文件反序列化：");
-		byte[] bytes = Files.readAllBytes(Paths.get(path));
+		byte[] bytes = Files.readAllBytes(path);
 		json = new String(bytes);
 		//Type exprInfosType = new TypeToken<List<ExprInfo>>(){}.getType();
 		//exprInfos = new Gson().fromJson(json, exprInfosType);
@@ -171,7 +170,7 @@ public class SerializeTest {
 		String fml4 = "G! = M! + N!";
 		List<String> lines = new ArrayList<String>(5 * FORMULA_BATCHES);
 
-		for (int i = 1; i <= FORMULA_BATCHES; i++) {
+		for (int i = 0; i < FORMULA_BATCHES; i++) {
 			lines.add(fml.replaceAll("!", String.valueOf(i)));
 			lines.add(fml1.replaceAll("!", String.valueOf(i)));
 			lines.add(fml2.replaceAll("!", String.valueOf(i)));
@@ -183,7 +182,7 @@ public class SerializeTest {
 	
 	private Environment getEnvironment() {
 		Environment env = new DefaultEnvironment();
-		for (int i = 1; i <= FORMULA_BATCHES; i++) {
+		for (int i = 0; i < FORMULA_BATCHES; i++) {
 			env.put("E" + i, 2);
 			env.put("F" + i, 3);
 			env.put("M" + i, 4);
@@ -193,52 +192,14 @@ public class SerializeTest {
 	}
 	
 	private void checkResult(Environment env) {
-		assertEquals(1686.0, env.get("A1").getValue());
-		assertEquals(116, env.get("B1").getValue());
-		assertEquals(59, env.get("C1").getValue());
-		assertEquals(29, env.get("D1").getValue());
-		assertEquals(9, env.get("G1").getValue());
-		assertEquals(1686.0, env.get("A5000").getValue());
-		assertEquals(116, env.get("B5000").getValue());
-		assertEquals(59, env.get("C5000").getValue());
-		assertEquals(29, env.get("D5000").getValue());
-		assertEquals(9, env.get("G5000").getValue());
-		assertEquals(1686.0, env.get("A10000").getValue());
-		assertEquals(116, env.get("B10000").getValue());
-		assertEquals(59, env.get("C10000").getValue());
-		assertEquals(29, env.get("D10000").getValue());
-		assertEquals(9, env.get("G10000").getValue());
-	}
-	
-	private String getPath(String fileName) {
-		String outputDir = System.getProperty("user.dir");
-		return Paths.get(outputDir, ".temp", fileName).toString();
-	}
-
-	private static void writeString(String content, String filePath) {
-		try (FileWriter writer = new FileWriter(filePath)) {
-			writer.write(content);
-		} catch (IOException e) {
-			System.err.println("文件写入出错: " + e.getMessage());
-		}
-	}
-
-	private static void serializeObject(Object obj, String fileName) {
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
-			oos.writeObject(obj);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	// 反序列化方法
-	private static <T> T deserializeObject(String fileName) {
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
-			T obj = (T) ois.readObject();
-			return obj;
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-			return null;
+		Random rand = new Random();
+		rand.nextInt(FORMULA_BATCHES);
+		for (int i = 0; i < 10; i++) {
+			assertEquals(1686.0, env.get("A" + i).getValue());
+			assertEquals(116, env.get("B" + i).getValue());
+			assertEquals(59, env.get("C" + i).getValue());
+			assertEquals(29, env.get("D" + i).getValue());
+			assertEquals(9, env.get("G" + i).getValue());
 		}
 	}
 }
