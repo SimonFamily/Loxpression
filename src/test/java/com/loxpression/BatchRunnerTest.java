@@ -17,6 +17,7 @@ import com.loxpression.execution.chunk.Chunk;
 class BatchRunnerTest extends TestBase {
 	private static final int FORMULA_BATCHES = 1000;
 	private static final String Directory = "BatchRunnerTest";
+	
 	@Test
 	void test1_IR() {
 		System.out.println("批量运算测试(解析执行)");
