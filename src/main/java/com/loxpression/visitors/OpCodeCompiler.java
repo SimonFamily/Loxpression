@@ -2,6 +2,9 @@ package com.loxpression.visitors;
 
 import static com.loxpression.execution.OpCode.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.loxpression.LoxRuntimeError;
 import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
@@ -10,6 +13,7 @@ import com.loxpression.execution.chunk.ChunkWriter;
 import com.loxpression.expr.*;
 import com.loxpression.functions.Function;
 import com.loxpression.functions.FunctionManager;
+import com.loxpression.ir.ExprInfo;
 import com.loxpression.parser.Token;
 import com.loxpression.parser.TokenType;
 import com.loxpression.values.Value;
@@ -18,6 +22,7 @@ import com.loxpression.values.Value;
 public class OpCodeCompiler implements Visitor<Void> {
 	private static final int ADDRESSSIZE = Integer.BYTES;
 	private ChunkWriter chunkWriter;
+	private Set<String> varSet = new HashSet<>();
 	private Tracer tracer;
 
 	public OpCodeCompiler(int chunkCapacity, Tracer tracer) {
@@ -32,6 +37,19 @@ public class OpCodeCompiler implements Visitor<Void> {
 	
 	public void beginCompile() {
 		chunkWriter.clear();
+		varSet.clear();
+	}
+	
+	public void compile(ExprInfo exprInfo) {
+		Expr expr = exprInfo.getExpr();
+		int order = exprInfo.getIndex();
+		compile(expr, order);
+		varSet.addAll(exprInfo.getPrecursors());
+		varSet.addAll(exprInfo.getSuccessors());
+	}
+	
+	public void compile(Expr expr) {
+		compile(expr, 0);
 	}
 	
 	public void compile(Expr expr, int order) {
@@ -42,6 +60,7 @@ public class OpCodeCompiler implements Visitor<Void> {
 	
 	public Chunk endCompile() {
 		emitOp(OP_EXIT);
+		this.chunkWriter.setVariables(varSet);
 		return this.chunkWriter.flush();
 	}
 
@@ -244,7 +263,7 @@ public class OpCodeCompiler implements Visitor<Void> {
 	}
 
 	private int makeConstant(Value value) {
-		int index = chunkWriter.addContant(value);
+		int index = chunkWriter.addConstant(value);
 		return index;
 	}
 	

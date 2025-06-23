@@ -2,13 +2,16 @@ package com.loxpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.loxpression.env.DefaultEnvironment;
 import com.loxpression.env.Environment;
 import com.loxpression.execution.ExResult;
 import com.loxpression.execution.VM;
 import com.loxpression.execution.chunk.Chunk;
+import com.loxpression.execution.chunk.ChunkReader;
 import com.loxpression.expr.Expr;
 import com.loxpression.ir.ExprInfo;
 import com.loxpression.ir.ExprSorter;
@@ -83,7 +86,13 @@ public class LoxRunner {
 	// 执行中间表示
 	public Object[] runIR(List<ExprInfo> exprInfos, Environment env) {
 		context.getTracer().startTimer();
-		boolean flag = env.beforeExecute(context.getExecContext());
+		Set<String> variables = new HashSet<>(); // 所有变量
+		for (ExprInfo info : exprInfos) {
+			variables.addAll(info.getPrecursors()); // read variable
+			variables.addAll(info.getSuccessors()); // write variable
+		}
+		variables.toArray();
+		boolean flag = env.beforeExecute(variables);
 		context.getTracer().endTimer("完成执行环境初始化。");
 		if (!flag) return null;
 		
@@ -104,13 +113,14 @@ public class LoxRunner {
 	// 执行字节码
 	public Object[] runChunk(Chunk chunk, Environment env) {
 		context.getTracer().startTimer();
-		boolean flag = env.beforeExecute(context.getExecContext());
+		ChunkReader chunkReader = new ChunkReader(chunk, context.getTracer());
+		boolean flag = env.beforeExecute(chunkReader.getVariables());
 		context.getTracer().endTimer("完成执行环境初始化。");
 		if (!flag) return null;
 		
 		context.getTracer().startTimer("执行");
 		VM vm = new VM(context.getTracer());
-		List<ExResult> exResults = vm.execute(chunk, env);
+		List<ExResult> exResults = vm.execute(chunkReader, env);
 		Object[] result = new Object[exResults.size()];
 		for (ExResult res : exResults) {
 			Value r = res.getResult();
@@ -153,7 +163,7 @@ public class LoxRunner {
 	}
 	
 	// 编译源码
-	public Chunk compileSrc(List<String> expressions) {
+	public Chunk compileSource(List<String> expressions) {
 		context.getTracer().startTimer("编译源码");
 		List<Expr> exprs = parse(expressions);
 		List<ExprInfo> exprInfos = analyze(exprs);
@@ -168,9 +178,7 @@ public class LoxRunner {
 		OpCodeCompiler compiler = new OpCodeCompiler(exprInfos.size(), context.getTracer());
 		compiler.beginCompile();
 		for (ExprInfo exprInfo : exprInfos) {
-			Expr expr = exprInfo.getExpr();
-			int index = exprInfo.getIndex();
-			compiler.compile(expr, index);
+			compiler.compile(exprInfo);
 		}
 		Chunk result = compiler.endCompile();
 		context.getTracer().endTimer("完成表达式编译。");

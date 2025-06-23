@@ -1,5 +1,6 @@
 package com.loxpression.env;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ public class DefaultEnvironment extends Environment {
 	private Map<String, Value> map = new HashMap<>();
 	
 	@Override
-	public boolean beforeExecute(ExecuteContext context) {
+	public boolean beforeExecute(Collection<String> vars) {
 		return true;
 	}
 	

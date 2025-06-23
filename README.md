@@ -89,7 +89,7 @@ age = currentDate - birthday
 - 字符串字面量（双引号开头）
 - 数值字面量 （数字开头）
 - 标识符 （字母开头）
-- 关键字 （在符号表中有定义的标识符）
+- 关键字 （在关键字列表中有定义的标识符）
   
 完整实现代码参照[Scanner.java](src/main/java/com/loxpression/parser/Scanner.java)
 

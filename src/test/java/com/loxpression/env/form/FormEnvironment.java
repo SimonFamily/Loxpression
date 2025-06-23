@@ -25,16 +25,10 @@ public class FormEnvironment extends Environment {
 	}
 	
 	@Override
-	public boolean beforeExecute(ExecuteContext context) {
-		List<ExprInfo> exprInfos = context.getExprInfos();
-		Set<String> variables = new HashSet<>(); // 所有变量
-		for (ExprInfo info : exprInfos) {
-			variables.addAll(info.getPrecursors()); // read variable
-			variables.addAll(info.getSuccessors()); // write variable
-		}
+	public boolean beforeExecute(Collection<String> vars) {
 		// 开始求值前，查询出所有变量的值并放在dataTable中，后续运行表达式时直接从dataTable取值。
 		DataQuery dataQuery = new DataQuery("id", "1");
-		for (String variable : variables) {
+		for (String variable : vars) {
 			FormItem item = formService.getFormItemByTitle(variable); // 表达式中的变量用的是表单项的标题
 			if (item == null) {
 				throw new RuntimeException("未定义的变量：" + variable);

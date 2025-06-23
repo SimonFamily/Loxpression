@@ -10,7 +10,7 @@ import com.loxpression.values.ValueType;
 
 public class ConstantPool {
 	private ArrayList<Value> constants;
-	private Map<Value, Integer> indexMap = new HashMap<Value, Integer>();
+	private Map<String, Integer> indexMap = new HashMap<String, Integer>();
 	private Tracer tracer;
 
 	public ConstantPool(int capacity, Tracer tracer) {
@@ -58,24 +58,28 @@ public class ConstantPool {
 		return bytes;
 	}
 	
-	public int addShareConst(Value value) {
-		Integer index = indexMap.get(value);
+	public int addConst(Value value) {
+		Integer index = indexMap.get(value.toString());
 		if (index != null) {
 			return index;
 		}
-		index = addConst(value);
-		indexMap.put(value, index);
-		return index;
-	}
-
-	public int addConst(Value value) {
 		checkType(value);
 		constants.add(value);
-		return constants.size() - 1; // 返回索引
+		index = constants.size() - 1; // 返回索引
+		indexMap.put(value.toString(), index);
+		return index;
 	}
 
 	public Value readConst(int index) {
 		return constants.get(index);
+	}
+	
+	public Integer getConstIndex(String constant) {
+		return indexMap.get(constant);
+	}
+	
+	public List<Value> getAllConsts() {
+		return this.constants;
 	}
 
 	public void clear() {

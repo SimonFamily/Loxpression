@@ -50,8 +50,13 @@ public class VM {
 	}
 
 	public List<ExResult> execute(Chunk chunk, Environment env) {
+		ChunkReader chunkReader = new ChunkReader(chunk, tracer);
+		return this.execute(chunkReader, env);
+	}
+	
+	public List<ExResult> execute(ChunkReader chunkReader, Environment env) {
 		reset();
-		this.chunkReader = new ChunkReader(chunk, tracer);
+		this.chunkReader = chunkReader;
 		return run(env);
 	}
 

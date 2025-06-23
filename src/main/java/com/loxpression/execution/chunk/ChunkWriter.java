@@ -1,7 +1,10 @@
 package com.loxpression.execution.chunk;
 
 import java.nio.ByteBuffer;
+import java.util.BitSet;
+import java.util.Collection;
 
+import com.loxpression.CompileError;
 import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
 import com.loxpression.values.Value;
@@ -9,6 +12,8 @@ import com.loxpression.values.Value;
 public class ChunkWriter {
 	private ByteBuffer codeBuffer;
 	private ConstantPool constPool;
+	private BitSet isVarConst;
+	
 	private Tracer tracer;
 	
 	public ChunkWriter(int capacity, Tracer tracer) {
@@ -27,11 +32,11 @@ public class ChunkWriter {
 		codeBuffer.flip();
 		byte[] codeBytes = new byte[codeBuffer.remaining()];
 		codeBuffer.get(codeBytes);
-		
 		byte[] constBytes = constPool.toBytes();
+		byte[] varBytes = isVarConst.toByteArray();
 		
 		codeBuffer.clear();
-		return new Chunk(codeBytes, constBytes);
+		return new Chunk(codeBytes, constBytes, varBytes);
 	}
 	
 	public void clear() {
@@ -40,17 +45,17 @@ public class ChunkWriter {
 	}
 
 	public void writeByte(byte value) {
-		ensureCapacity(Byte.BYTES);
+		codeBuffer = ensureCapacity(Byte.BYTES, codeBuffer);
 		codeBuffer.put(value);
 	}
 
 	public void writeShort(short value) {
-		ensureCapacity(Short.BYTES);
+		codeBuffer = ensureCapacity(Short.BYTES, codeBuffer);
 		codeBuffer.putShort(value);
 	}
 
 	public void writeInt(int value) {
-		ensureCapacity(Integer.BYTES);
+		codeBuffer = ensureCapacity(Integer.BYTES, codeBuffer);
 		codeBuffer.putInt(value);
 	}
 
@@ -62,25 +67,38 @@ public class ChunkWriter {
 		writeByte(opCode.getValue());
 	}
 
-	public int addContant(Value value) {
+	public int addConstant(Value value) {
 		return constPool.addConst(value);
+	}
+	
+	public void setVariables(Collection<String> vars) {
+		int n = vars.size();
+		isVarConst = new BitSet(n);
+		for (String var : vars) {
+			Integer index = constPool.getConstIndex(var);
+			if (index == null) {
+				throw new CompileError(0, "常量池中不存在变量：" + var);
+			}	
+			isVarConst.set(index);
+		}
 	}
 	
 	public int position() {
 		return codeBuffer.position();
 	}
 
-	private void ensureCapacity(int byteCount) {
-		if (codeBuffer.remaining() < byteCount) {
-			grow();
+	private ByteBuffer ensureCapacity(int byteCount, ByteBuffer buffer) {
+		if (buffer.remaining() < byteCount) {
+			return grow(buffer);
 		}
+		return buffer;
 	}
 
-	private void grow() {
-		int newCapacity = codeBuffer.capacity() * 2;
+	private ByteBuffer grow(ByteBuffer buffer) {
+		int newCapacity = buffer.capacity() * 2;
 		ByteBuffer newBuffer = ByteBuffer.allocate(newCapacity);
-		codeBuffer.flip(); // 切换为读模式
-		newBuffer.put(codeBuffer);
-		codeBuffer = newBuffer;
+		buffer.flip(); // 切换为读模式
+		newBuffer.put(buffer);
+		return newBuffer;
 	}
 }

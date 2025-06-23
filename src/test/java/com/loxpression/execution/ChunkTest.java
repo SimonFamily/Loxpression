@@ -13,15 +13,15 @@ public class ChunkTest {
 	@Test
 	void test() {
 		ChunkWriter chunkMaker = new ChunkWriter(new Tracer());
-		int i = chunkMaker.addContant(new Value(1));
+		int i = chunkMaker.addConstant(new Value(1));
 		chunkMaker.writeCode(OP_CONSTANT);
 		chunkMaker.writeByte((byte)i);
 		
-		i = chunkMaker.addContant(new Value(2));
+		i = chunkMaker.addConstant(new Value(2));
 		chunkMaker.writeCode(OP_CONSTANT);
 		chunkMaker.writeByte((byte)i);
 		
-		i = chunkMaker.addContant(new Value(3));
+		i = chunkMaker.addConstant(new Value(3));
 		chunkMaker.writeCode(OP_CONSTANT);
 		chunkMaker.writeByte((byte)i);
 		

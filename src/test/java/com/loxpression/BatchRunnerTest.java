@@ -38,7 +38,7 @@ class BatchRunnerTest extends TestBase {
 		List<String> lines = getExpressions();
 		LoxRunner runner = new LoxRunner();
 		runner.setTrace(true);
-		Chunk chunk = runner.compileSrc(lines);
+		Chunk chunk = runner.compileSource(lines);
 		Environment env = getEnv();
 		runner.runChunk(chunk, env);
 		checkValues(env);
