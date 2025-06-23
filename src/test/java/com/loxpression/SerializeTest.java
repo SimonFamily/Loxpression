@@ -117,12 +117,12 @@ public class SerializeTest extends TestBase {
 		String fileName = "ExprInfos.ser";
 		Path path = getPath(Directory, fileName);
 		serializeObject(exprInfos, path);
-		System.out.println("语法树已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
+		System.out.println("语法树已序列化到：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
 		System.out.println("开始语法树反序列化：");
 		exprInfos = deserializeObject(path);
-		System.out.println("语法树反序列化完成。" + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
+		System.out.println("语法树反序列化完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 		
 		start = System.currentTimeMillis();
 		System.out.println("开始执行语法树：");

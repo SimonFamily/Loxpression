@@ -48,7 +48,7 @@ LoxRunner runner = new LoxRunner();
 Object r = runner.execute("a + b * c ", env);
 System.out.println(r); // 7
 ```
-系统提供的默认环境对象为DefaultEnvironment，在执行表达式前，对于表达式中需要读取值的变量，都需要在DefaultEnvironment对象中有值。有时候需要执行的表达式数量较多，在对表达式做解析之前，业务层无法高效的把所有变量值都提前准备好，或者表达式中的变量和实际数据之间是间接的关联，这时候便可以根据需要自定义环境对象，只需继承Environment抽象类即可。参照示例:[FormEnvironment.java](https://github.com/SimonFamily/Loxpression/blob/master/src/test/java/com/loxpression/env/form/FormEnvironment.java)，以及单元测试:[FormEnvTest.java](https://github.com/SimonFamily/Loxpression/blob/master/src/test/java/com/loxpression/env/form/FormEnvTest.java)
+系统提供的默认环境对象为DefaultEnvironment，在执行表达式前，对于表达式中需要读取值的变量，都需要在DefaultEnvironment对象中有值。有时候需要执行的表达式数量较多，在对表达式做解析之前，业务层无法高效的把所有变量值都提前准备好，或者表达式中的变量和实际数据之间是间接的关联，这时候便可以根据需要自定义环境对象，只需继承Environment抽象类即可。参照示例:[FormEnvironment.java](src/test/java/com/loxpression/env/form/FormEnvironment.java)，以及单元测试:[FormEnvTest.java](src/test/java/com/loxpression/env/form/FormEnvTest.java)
 ## 编译运行
 Loxpression提供两种执行表达式的方式，一是直接执行表达式字符串，比如上文所举例子，适合表达式数量较少的情况。二是先把表达式编译为字节码(Chunk)，业务系统缓存或者存储字节码对象，后续需要执行时直接运行字节码。
 - 编译表达式：
@@ -74,6 +74,24 @@ Chunk对象只由字节数组构成，序列化、反序列化性能极高，适
 针对这种情况，Loxpression提供了字节码格式的执行方式。业务系统在配置好表达式以后，可以先将表达式编译为字节码(Chunk)，然后将字节码放入缓存或者数据库、文件等存储服务中。最后需要执行的时候，从存储/缓存服务中读取出字节码再运行。
 ## 3.1 解析
 ### 词法分析
+词法分析是Loxpression处理表达式的第一步，目的是把字符串格式的表达式分割成单词(token)列表。我们知道，组成字符串的基本单位是一个一个的字符，但是对于表达式的运行来说，随意截取表达式的一个片段或者任意取子串做分析是没有意义的，比如：
+```java
+age = currentDate - birthday
+```
+我们如果关注“currentDate”，就确定这是一个变量，关注“=”或者“-”就知道这是操作符，一个代表赋值一个代表做减法。但如果我们把注意力放在“rrentDa”或者“ge = curr”这样的子串上，那对表达式的分析来说是没有任何意义的。所以词法分析的作用就是把字符串格式的表达式处理为一系列有意义的单词，让编译器后续的处理环节都只关注有意义的单词列表，无需再去分析字符串内部字符间的关系。比如最终有意义的处理结果为：
+![词法分析结果](docs/images/tokens.png)
+后续处理环节都只以这五个token为最基本的处理单元。
+
+不同的字符所能组合而成的字符串是无限的。但是，作为构成表达式的基本单位的token，其类别又是固定的，所有token的类别都在[TokenType.java](src/main/java/com/loxpression/parser/TokenType.java)这个枚举类中定义。词法分析器的作用就是从左往右扫描字符串，并把字符串中的单词归入对应的类别，同时创建出token。代码层面只需对以下几种情况分类处理即可。
+- 单字符符号
+- 双字符符号
+- 空白
+- 字符串字面量（双引号开头）
+- 数值字面量 （数字开头）
+- 标识符 （字母开头）
+- 关键字 （在符号表中有定义的标识符）
+  
+完整实现代码参照[Scanner.java](rc/main/java/com/loxpression/parser/Scanner.java)
 
 ### 语法分析
 
