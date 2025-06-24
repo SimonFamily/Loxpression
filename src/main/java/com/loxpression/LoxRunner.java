@@ -2,6 +2,7 @@ package com.loxpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -91,8 +92,8 @@ public class LoxRunner {
 			variables.addAll(info.getPrecursors()); // read variable
 			variables.addAll(info.getSuccessors()); // write variable
 		}
-		variables.toArray();
-		boolean flag = env.beforeExecute(variables);
+		Collection<Field> fields = getFields(variables);
+		boolean flag = env.beforeExecute(fields);
 		context.getTracer().endTimer("完成执行环境初始化。");
 		if (!flag) return null;
 		
@@ -114,7 +115,8 @@ public class LoxRunner {
 	public Object[] runChunk(Chunk chunk, Environment env) {
 		context.getTracer().startTimer();
 		ChunkReader chunkReader = new ChunkReader(chunk, context.getTracer());
-		boolean flag = env.beforeExecute(chunkReader.getVariables());
+		Collection<Field> fields = getFields(chunkReader.getVariables());
+		boolean flag = env.beforeExecute(fields);
 		context.getTracer().endTimer("完成执行环境初始化。");
 		if (!flag) return null;
 		
@@ -191,5 +193,14 @@ public class LoxRunner {
 			exprInfos = sorter.sort();
 		}
 		return exprInfos;
+	}
+	
+	private Collection<Field> getFields(Collection<String> strs) {
+		List<Field> result = new ArrayList<Field>();
+		for (String str : strs) {
+			Field field = Field.valueOf(str);
+			result.add(field);
+		}
+		return result;
 	}
 }

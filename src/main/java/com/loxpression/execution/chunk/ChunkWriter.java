@@ -77,8 +77,8 @@ public class ChunkWriter {
 		for (String var : vars) {
 			Integer index = constPool.getConstIndex(var);
 			if (index == null) {
-				throw new CompileError(0, "常量池中不存在变量：" + var);
-			}	
+				index = constPool.addConst(new Value(var));
+			}
 			isVarConst.set(index);
 		}
 	}

@@ -11,12 +11,13 @@ public enum TokenType {
 	  GREATER, GREATER_EQUAL,
 	  LESS, LESS_EQUAL,
 	  STAR, STARSTAR,
+	  AND, OR,
 
 	  // Literals.
 	  IDENTIFIER, STRING, NUMBER,
 
 	  // Keywords.
-	  AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NULL, OR,
+	  CLASS, ELSE, FALSE, FUN, FOR, IF, NULL,
 	  PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
 	  ERROR, EOF

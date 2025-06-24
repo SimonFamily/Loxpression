@@ -4,14 +4,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.loxpression.ir.ExecuteContext;
+import com.loxpression.Field;
 import com.loxpression.values.Value;
 
 public class DefaultEnvironment extends Environment {
 	private Map<String, Value> map = new HashMap<>();
 	
 	@Override
-	public boolean beforeExecute(Collection<String> vars) {
+	public boolean beforeExecute(Collection<Field> vars) {
 		return true;
 	}
 	

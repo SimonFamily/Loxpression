@@ -3,6 +3,7 @@ package com.loxpression.env.form;
 import java.io.IOException;
 import java.util.*;
 
+import com.loxpression.Field;
 import com.loxpression.env.Environment;
 import com.loxpression.env.form.defines.DataRow;
 import com.loxpression.env.form.defines.DataTable;
@@ -10,8 +11,6 @@ import com.loxpression.env.form.defines.FieldDefine;
 import com.loxpression.env.form.defines.FormItem;
 import com.loxpression.env.form.service.DataQuery;
 import com.loxpression.env.form.service.FormService;
-import com.loxpression.ir.ExecuteContext;
-import com.loxpression.ir.ExprInfo;
 import com.loxpression.values.Value;
 
 public class FormEnvironment extends Environment {
@@ -25,17 +24,18 @@ public class FormEnvironment extends Environment {
 	}
 	
 	@Override
-	public boolean beforeExecute(Collection<String> vars) {
+	public boolean beforeExecute(Collection<Field> vars) {
 		// 开始求值前，查询出所有变量的值并放在dataTable中，后续运行表达式时直接从dataTable取值。
 		DataQuery dataQuery = new DataQuery("id", "1");
-		for (String variable : vars) {
-			FormItem item = formService.getFormItemByTitle(variable); // 表达式中的变量用的是表单项的标题
+		for (Field variable : vars) {
+			String name = variable.getName();
+			FormItem item = formService.getFormItemByTitle(name); // 表达式中的变量用的是表单项的标题
 			if (item == null) {
 				throw new RuntimeException("未定义的变量：" + variable);
 			}
 			FieldDefine field = formService.getFieldById(item.getFieldId());
 			int index = dataQuery.addColumn(field);
-			varIndex.put(variable, index); // 变量对应的列索引
+			varIndex.put(name, index); // 变量对应的列索引
 		}
 		try {
 			dataTable = dataQuery.executeQuery();
