@@ -36,6 +36,9 @@ public class ValuesHelper {
 			}
 		case SLASH:
 			checkNumberOperands(left, right);
+			if (right.isInteger() && right.asInteger() == 0) {
+                throw new LoxRuntimeError("Division by zero.");
+            }
 			if (left.isDouble() || right.isDouble()) {
 				return new Value(left.asDouble() / right.asDouble());
 			} else {

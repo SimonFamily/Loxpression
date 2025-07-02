@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.Collection;
 
-import com.loxpression.CompileError;
 import com.loxpression.Tracer;
 import com.loxpression.execution.OpCode;
 import com.loxpression.values.Value;

@@ -17,5 +17,4 @@ public class GetExpr extends Expr {
 	public <R> R accept(Visitor<R> visitor) {
 		return visitor.visit(this);
 	}
-
 }
