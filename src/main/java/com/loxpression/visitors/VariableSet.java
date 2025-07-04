@@ -1,5 +1,8 @@
 package com.loxpression.visitors;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,11 +58,16 @@ public class VariableSet {
 	
 	@Override
 	public String toString() {
-		String result = String.join(",", assigns);
+		String[] assignArr = assigns.toArray(new String[assigns.size()]);
+		Arrays.sort(assignArr);
+		String result = String.join(",", assignArr);
 		if (result.length() != 0) {
 			result += " = ";
 		}
-		result += String.join(",", depends);
+		
+		String[] dependArr = depends.toArray(new String[depends.size()]);
+		Arrays.sort(dependArr);
+		result += String.join(",", dependArr);
 		return result;
 	}
 	

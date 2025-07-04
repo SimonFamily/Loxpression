@@ -20,13 +20,14 @@ public class VarQueryTest {
 	void ifElseTest() {
 		VarsQuery varQuery = new VarsQuery();
 		VariableSet result = varQuery.execute("if(a == b + c, if (a > d, x = y = m + n, p = q = u + v), z = w * 2)");
-		assertEquals("p,q,x,y,z = a,b,c,d,u,v,w,m,n", result.toString());
+		assertEquals("p,q,x,y,z = a,b,c,d,m,n,u,v,w", result.toString());
 	}
 	
 	@Test
 	void objTest() {
 		VarsQuery varQuery = new VarsQuery();
 		VariableSet result = varQuery.execute("A.x = A.y = B.a + B.b*(2 + (A.z = C.D.h * C.D.i)) - abs(sum(B.c, B.d - C.D.e/C.D.f**C.D.g))");
-		assertEquals("A.x,A.y,A.z = C.D.i,C.D.g,B.a,C.D.h,B.b,C.D.e,B.c,C.D.f,B.d", result.toString());
+		assertEquals("A.x,A.y,A.z = B.a,B.b,B.c,B.d,C.D.e,C.D.f,C.D.g,C.D.h,C.D.i", result.toString());
 	}
 }
+
