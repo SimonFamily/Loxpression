@@ -98,13 +98,13 @@ class BatchRunnerTest extends TestBase {
 	
 	private void checkValues(Environment env) {
 		Random rand = new Random();
-		rand.nextInt(FORMULA_BATCHES);
 		for (int i = 0; i < 10; i++) {
-			assertEquals(1686.0, env.get("A" + i).getValue());
-			assertEquals(116, env.get("B" + i).getValue());
-			assertEquals(59, env.get("C" + i).getValue());
-			assertEquals(29, env.get("D" + i).getValue());
-			assertEquals(9, env.get("G" + i).getValue());
+			int index = rand.nextInt(FORMULA_BATCHES);
+			assertEquals(1686.0, env.get("A" + index).getValue());
+			assertEquals(116, env.get("B" + index).getValue());
+			assertEquals(59, env.get("C" + index).getValue());
+			assertEquals(29, env.get("D" + index).getValue());
+			assertEquals(9, env.get("G" + index).getValue());
 		}
 	}
 }
