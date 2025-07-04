@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.loxpression.Instance;
 import com.loxpression.LoxException;
+import com.loxpression.util.StringUtils;
 
 public class Value implements Serializable {
 	private static final long serialVersionUID = -7529873590511413244L;
@@ -60,7 +61,7 @@ public class Value implements Serializable {
 			short len = buffer.getShort();
 			byte[] bytes = new byte[len];
 			buffer.get(bytes);
-			String s = new String(bytes);
+			String s = StringUtils.getUTF8String(bytes);
 			return new Value(s);
 		default:
 			throw new LoxException(0, "暂不支持的类型：" + type);
@@ -75,7 +76,7 @@ public class Value implements Serializable {
 		case Double:
 			return (short)Double.BYTES + 1;
 		case String:
-			byte[] bytes = asString().getBytes();
+			byte[] bytes = StringUtils.getUTF8Bytes(asString());
 			if (bytes.length > Short.MAX_VALUE) {
 				throw new LoxException(0, "字符串超出最大长度：" + bytes.length);
 			}
@@ -97,7 +98,7 @@ public class Value implements Serializable {
 			buffer.putDouble(asDouble());
 			break;
 		case String:
-			byte[] bytes = asString().getBytes();
+			byte[] bytes = StringUtils.getUTF8Bytes(asString());
 			buffer.put(vt);
 			buffer.putShort((short)bytes.length);
 			buffer.put(bytes);
