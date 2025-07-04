@@ -40,5 +40,8 @@ public class DisassemblerTest extends TestBase {
         }
         
         assertEquals(chunk.getByteSize(), 441); // 所有公式编译出来大小为441字节
+        assertEquals(chunk.getCodesSize(), 359); // 字节码指令的大小
+        assertEquals(chunk.getConstsSize(), 79); // 常量池的大小
+        assertEquals(chunk.getVarsSize(), 3); // 变量信息的大小
 	}
 }

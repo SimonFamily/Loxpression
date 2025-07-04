@@ -20,4 +20,16 @@ public class Chunk implements Serializable {
 	public int getByteSize() {
 		return codes.length + constants.length + vars.length;
 	}
+	
+	public int getCodesSize() {
+		return codes.length;
+	}
+	
+	public int getConstsSize() {
+		return constants.length;
+	}
+	
+	public int getVarsSize() {
+		return vars.length;
+	}
 }
