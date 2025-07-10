@@ -134,7 +134,7 @@ public class Parser {
 		return tokens.get(current - 1);
 	}
 	
-	private boolean isAtEnd() {
+	public boolean isAtEnd() {
 		return peek().type == EOF;
 	}
 }

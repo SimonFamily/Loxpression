@@ -2,16 +2,8 @@ package com.loxpression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -84,81 +76,6 @@ public class SerializeTest extends TestBase {
 		
 		//String json = new Gson().toJson(chunks);
 		//writeString(json, getPath("Chunks.json"));
-		System.out.println("==========");
-	}
-
-	void formulaFileTest() throws IOException {
-		long start = System.currentTimeMillis();
-		System.out.println("开始生成公式：");
-		List<String> lines = createFormulas();
-		String fileName = "formulas.txt";
-		Path path = getPath(Directory, fileName);
-		writeAllLines(lines, path);
-		System.out.println("文件生成：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
-
-		start = System.currentTimeMillis();
-		System.out.println("开始从文件进行编译：");
-		lines = Files.readAllLines(path);
-		LoxRunner runner = new LoxRunner();
-		List<Expr> exprs = runner.parse(lines);
-		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		System.out.println("完成编译公式文件。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		System.out.println("==========");
-	}
-
-	void objectSerializeTest() {
-		long start = System.currentTimeMillis();
-		System.out.println("开始进行语法树序列化：");
-		List<String> lines = createFormulas();
-		LoxRunner runner = new LoxRunner();
-		List<Expr> exprs = runner.parse(lines);
-		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		
-		String fileName = "ExprInfos.ser";
-		Path path = getPath(Directory, fileName);
-		serializeObject(exprInfos, path);
-		System.out.println("语法树已序列化到：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
-
-		start = System.currentTimeMillis();
-		System.out.println("开始语法树反序列化：");
-		exprInfos = deserializeObject(path);
-		System.out.println("语法树反序列化完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
-		start = System.currentTimeMillis();
-		System.out.println("开始执行语法树：");
-		Environment env = getEnvironment();
-		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.runIR(exprInfos, env);			
-		}
-		checkResult(env);
-		System.out.println("语法树执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
-		//String json = new Gson().toJson(exprInfos);
-		//writeString(json, getPath("ExprInfos.json"));
-		System.out.println("==========");
-	}
-
-	void jsonSerializeTest() throws IOException {
-		long start = System.currentTimeMillis();
-		System.out.println("开始进行json序列化：");
-		List<String> lines = createFormulas();
-		LoxRunner runner = new LoxRunner();
-		List<Expr> exprs = runner.parse(lines);
-		List<ExprInfo> exprInfos = runner.analyze(exprs);
-		String fileName = "ExprInfos.json";
-		Path path = getPath(Directory, fileName);
-		String json = "";
-		//json = new Gson().toJson(exprInfos);
-		writeString(json, path);
-		System.out.println("对象已序列化到：" + fileName + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
-
-		start = System.currentTimeMillis();
-		System.out.println("开始从json文件反序列化：");
-		byte[] bytes = Files.readAllBytes(path);
-		json = new String(bytes);
-		//Type exprInfosType = new TypeToken<List<ExprInfo>>(){}.getType();
-		//exprInfos = new Gson().fromJson(json, exprInfosType);
-		System.out.println("json反序列化完成。" + " 耗时(s):" + (System.currentTimeMillis() - start) / 1000);
 		System.out.println("==========");
 	}
 

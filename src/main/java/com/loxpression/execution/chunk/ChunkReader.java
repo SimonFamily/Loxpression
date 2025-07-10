@@ -45,6 +45,7 @@ public class ChunkReader { // read后指针会往前移动，效果和虚拟机i
 	}
 	
 	public Collection<String> getVariables() {
+		this.tracer.startTimer();
 		List<Value> values = constPool.getAllConsts();
 		List<String> result = new ArrayList<String>();
 		for (int i = 0; i < values.size(); i++) {
@@ -52,6 +53,7 @@ public class ChunkReader { // read后指针会往前移动，效果和虚拟机i
 				result.add(values.get(i).toString());
 			}
 		}
+		this.tracer.endTimer("构造变量列表");
 		return result;
 	}
 	
