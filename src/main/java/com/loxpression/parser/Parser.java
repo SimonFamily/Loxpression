@@ -31,7 +31,7 @@ public class Parser {
 		
 		infixParselets.put(PLUS, new BinaryParselet(Precedence.PREC_TERM));
 		infixParselets.put(MINUS, new BinaryParselet(Precedence.PREC_TERM));
-		infixParselets.put(PERCENT, new BinaryParselet(Precedence.PREC_MODE));
+		infixParselets.put(PERCENT, new BinaryParselet(Precedence.PREC_FACTOR));
 		infixParselets.put(STAR, new BinaryParselet(Precedence.PREC_FACTOR));
 		infixParselets.put(SLASH, new BinaryParselet(Precedence.PREC_FACTOR));
 		infixParselets.put(STARSTAR, new BinaryParselet(Precedence.PREC_POWER, true));

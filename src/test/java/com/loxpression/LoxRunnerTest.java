@@ -21,6 +21,7 @@ public class LoxRunnerTest {
 		assertEquals(19.0, runner.execute("1 + 2 * 3 ** 2 ** 1", env));
 		assertEquals(9.0, runner.execute("3 * (2 + 1.0)", env));
 		assertEquals(true, runner.execute("3 * (2 + 1.0) > 7", env));
+		assertEquals(11138.0, runner.execute("1000 + 100.0 * 99 - (600 - 3 * 15) / (((68 - 9) - 3) * 2 - 100) + 10000 % 7 * 71"));
 		
 		env.put("a", 1);
 		env.put("b", 2);
