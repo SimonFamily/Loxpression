@@ -8,9 +8,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
+import com.loxpression.execution.chunk.Chunk;
 
 public class TestBase {
 
@@ -67,5 +70,27 @@ public class TestBase {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
+	}
+	
+	protected void writeChunkFile(Chunk chunk, Path filePath) {
+		try {
+			createParentIfNotExist(filePath);
+			byte[] bytes = chunk.toBytes();
+			Files.write(filePath, bytes);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	protected Chunk readChunkFile(Path filePath) {
+		try {
+			byte[] bytes  = Files.readAllBytes(filePath);
+			return Chunk.valueOf(bytes);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

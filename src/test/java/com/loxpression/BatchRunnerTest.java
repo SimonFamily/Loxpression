@@ -45,16 +45,16 @@ class BatchRunnerTest extends TestBase {
 		System.out.println("总耗时(ms)：" + (System.currentTimeMillis() - start));
 		System.out.println("==========");
 		
-		String fileName = "Chunks.ser";
+		String fileName = "Chunks.pb";
 		Path path = getPath(Directory, fileName);
-		serializeObject(chunk, path);
+		writeChunkFile(chunk, path);
 	}
 	
 	@Test
 	void test3_Chunk() {
 		System.out.println("批量运算测试(字节码直接执行)");
 		long start = System.currentTimeMillis();
-		Chunk chunk = deserializeObject(getPath(Directory, "Chunks.ser"));
+		Chunk chunk = readChunkFile(getPath(Directory, "Chunks.pb"));
 		System.out.println("完成从文件反序列化字节码。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
 		LoxRunner runner = new LoxRunner();

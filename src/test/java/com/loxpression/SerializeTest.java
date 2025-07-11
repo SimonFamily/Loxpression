@@ -47,13 +47,13 @@ public class SerializeTest extends TestBase {
 		
 		System.out.println("开始进行字节码序列化反序列化，字节码大小(KB)：" + (chunk.getByteSize() / 1024));
 		start = System.currentTimeMillis();
-		String fileName = "Chunks.ser";
+		String fileName = "Chunks.pb";
 		Path path = getPath(Directory, fileName);
-		serializeObject(chunk, path);
+		writeChunkFile(chunk, path);
 		System.out.println("字节码已序列化到文件：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		chunk = deserializeObject(path);
+		chunk = readChunkFile(path);
 		System.out.println("完成从文件反序列化字节码。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 		
 		System.out.println("开始执行字节码：");
