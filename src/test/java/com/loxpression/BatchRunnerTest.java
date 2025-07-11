@@ -49,23 +49,22 @@ class BatchRunnerTest extends TestBase {
 		Path path = getPath(Directory, fileName);
 		writeChunkFile(chunk, path);
 	}
-	
+
 	@Test
-	void test3_Chunk() {
+	void test3_batch() {
 		System.out.println("批量运算测试(字节码直接执行)");
 		long start = System.currentTimeMillis();
-		Chunk chunk = readChunkFile(getPath(Directory, "Chunks.pb"));
-		System.out.println("完成从文件反序列化字节码。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
 
-		LoxRunner runner = new LoxRunner();
-		runner.setTrace(true);
-		Environment env = getEnv();
-		runner.runChunk(chunk, env);
-		checkValues(env);
+		Chunk chunk = readChunkFile(getPath(Directory, "Chunks.pb"));
+		for (int i = 0; i < 1; i++) {
+			LoxRunner runner = new LoxRunner();
+			Environment env = getEnv();
+			runner.runChunk(chunk, env);
+			checkValues(env);
+		}
+		System.out.println("执行完成。" + " 总耗时(ms):" + (System.currentTimeMillis() - start));	
 		System.out.println("==========");
 	}
-	
-	
 
 	private List<String> getExpressions() {
 		List<String> lines = new ArrayList<String>();
