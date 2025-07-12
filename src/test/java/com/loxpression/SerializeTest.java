@@ -18,39 +18,37 @@ import com.loxpression.ir.ExprInfo;
 
 public class SerializeTest extends TestBase {
 	private static final int FORMULA_BATCHES = 1000;
-	private static final int RUN_BATCHES = 1;
 	private static final String Directory = "SerializeTest";
 	
 	@Test
 	void test() throws IOException {
 		System.out.println("序列化反序列化测试：");
-		//formulaFileTest();
-		//jsonSerializeTest();
-		//objectSerializeTest();
 		chunkSerializeTest();
 	}
 	
 	void chunkSerializeTest() {
 		List<String> lines = createFormulas();
 		System.out.println("表达式总数：" + lines.size());
-		
-		LoxRunner runner = new LoxRunner();
-		
 		System.out.println("开始解析和分析：");
 		long start = System.currentTimeMillis();
+		LoxRunner runner = new LoxRunner();
 		List<Expr> exprs = runner.parse(lines);
 		List<ExprInfo> exprInfos = runner.analyze(exprs);
 		System.out.println("中间结果生成完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
-		runner.setTrace(true);
 		Chunk chunk = runner.compileIR(exprInfos);
+		Environment env = getEnvironment();
 		
+		testChunk(chunk, env);
+		testSyntaxTree(exprInfos, env);
+		System.out.println("==========");
+	}
+
+	private void testChunk(Chunk chunk, Environment env) {
 		System.out.println("开始进行字节码序列化反序列化，字节码大小(KB)：" + (chunk.getByteSize() / 1024));
-		start = System.currentTimeMillis();
-		String fileName = "Chunks.pb";
-		Path path = getPath(Directory, fileName);
+		long start = System.currentTimeMillis();
+		Path path = getPath(Directory, "Chunks.pb");
 		writeChunkFile(chunk, path);
-		System.out.println("字节码已序列化到文件：" + fileName + " 耗时(ms):" + (System.currentTimeMillis() - start));
+		System.out.println("字节码已序列化到文件, 耗时(ms):" + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
 		chunk = readChunkFile(path);
@@ -58,25 +56,24 @@ public class SerializeTest extends TestBase {
 		
 		System.out.println("开始执行字节码：");
 		start = System.currentTimeMillis();
-		Environment env = getEnvironment();
-		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.runChunk(chunk, env);
-		}
+		LoxRunner runner = new LoxRunner();
+		runner.runChunk(chunk, env);
 		checkResult(env);
 		System.out.println("字节码执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
+	}
+
+	private void testSyntaxTree(List<ExprInfo> exprInfos, Environment env) {
+		// todo 序列化语法树
+		// todo反序列化语法树
+
 		System.out.print("开始执行语法树");
-		start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		env = getEnvironment();
-		for (int i = 0; i < RUN_BATCHES; i++) {
-			runner.runIR(exprInfos, env);
-		}
+		LoxRunner runner = new LoxRunner();
+		runner.runIR(exprInfos, env);
 		checkResult(env);
 		System.out.println("语法树执行完成。" + " 耗时(ms):" + (System.currentTimeMillis() - start));
-		
-		//String json = new Gson().toJson(chunks);
-		//writeString(json, getPath("Chunks.json"));
-		System.out.println("==========");
+
 	}
 
 	private List<String> createFormulas() {

@@ -19,7 +19,7 @@ class BatchRunnerTest extends TestBase {
 	private static final String Directory = "BatchRunnerTest";
 	
 	@Test
-	void test1_IR() {
+	void testIR() {
 		System.out.println("批量运算测试(解析执行)");
 		List<String> lines = getExpressions();
 		LoxRunner runner = new LoxRunner();
@@ -32,7 +32,7 @@ class BatchRunnerTest extends TestBase {
 	}
 	
 	@Test
-	void test2_CompileChunk() throws IOException {
+	void testCompileChunk() throws IOException {
 		System.out.println("批量运算测试(编译+字节码执行)");
 		long start = System.currentTimeMillis();
 		List<String> lines = getExpressions();
@@ -44,26 +44,44 @@ class BatchRunnerTest extends TestBase {
 		checkValues(env);
 		System.out.println("总耗时(ms)：" + (System.currentTimeMillis() - start));
 		System.out.println("==========");
-		
-		String fileName = "Chunks.pb";
-		Path path = getPath(Directory, fileName);
-		writeChunkFile(chunk, path);
 	}
 
 	@Test
-	void test3_batch() {
-		System.out.println("批量运算测试(字节码直接执行)");
-		long start = System.currentTimeMillis();
+	void testFileChunk() {
+		System.out.println("字节码编译到文件再从文件读取执行");
+		Path filePath = getPath(Directory, "Chunks.pb");
+		Chunk chunk = createAndGetChunk(filePath);
+		System.out.println("字节码大小(KB)：" + (chunk.getByteSize() / 1024));
 
-		Chunk chunk = readChunkFile(getPath(Directory, "Chunks.pb"));
-		for (int i = 0; i < 1; i++) {
+		long start = System.currentTimeMillis();
+		int cnt = 1;
+		for (int i = 0; i < cnt; i++) {
 			LoxRunner runner = new LoxRunner();
 			Environment env = getEnv();
 			runner.runChunk(chunk, env);
 			checkValues(env);
 		}
-		System.out.println("执行完成。" + " 总耗时(ms):" + (System.currentTimeMillis() - start));	
+		System.out.println(String.format("执行完成，执行次数：%s。 总耗时(ms):%s", cnt, (System.currentTimeMillis() - start), null));	
 		System.out.println("==========");
+	}
+
+	
+
+	private Chunk createAndGetChunk(Path path) {
+		List<String> lines = getExpressions();
+		LoxRunner runner = new LoxRunner();
+		long start = System.currentTimeMillis();
+		Chunk chunk = runner.compileSource(lines);
+		System.out.println("编译完成，耗时(ms)：" + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		writeChunkFile(chunk, path);
+		System.out.println("序列化到文件完成，耗时(ms)：" + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		chunk = readChunkFile(path);
+		System.out.println("从文件反序列化完成，耗时(ms)：" + (System.currentTimeMillis() - start));
+		return chunk;
 	}
 
 	private List<String> getExpressions() {
